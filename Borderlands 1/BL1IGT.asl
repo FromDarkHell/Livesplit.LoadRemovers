@@ -32,7 +32,7 @@ init
 update
 {
 	vars.isLoading = false;
-	if((current.isLoading1 || current.isLoading2 || current.isLoading3) && current.isOnMenu != 8) {
+	if((current.isLoading1 || current.isLoading2) && current.isOnMenu != 8) {
     // If the loading memory is true, change loading to true.
 		vars.isLoading = true;
 	}
