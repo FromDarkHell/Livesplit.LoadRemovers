@@ -1,9 +1,9 @@
 state("Borderlands", "1.0")
 {
 	// One of these bools is probably redundant, who cares.
-	bool isLoading1 : "Borderlands.exe", 0x1B559D0;
-	bool isLoading2 : "Borderlands.exe", 0x1B97E38;
-	bool isLoading3 : "Borderlands.exe", 0x1B98A74;
+	bool isLoading1 : "Borderlands.exe", 0x1B98BC4;
+	bool isLoading2 : "Borderlands.exe", 0x1B98A74;
+	int isOnMenu : "Borderlands.exe", 0x1B98BC4;
 }
 
 state("Borderlands", "1.4.1")
@@ -32,7 +32,7 @@ init
 update
 {
 	vars.isLoading = false;
-	if(current.isLoading1 || current.isLoading2 || current.isLoading3) {
+	if((current.isLoading1 || current.isLoading2 || current.isLoading3) && current.isOnMenu != 8) {
     // If the loading memory is true, change loading to true.
 		vars.isLoading = true;
 	}
