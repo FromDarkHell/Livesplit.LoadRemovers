@@ -41,9 +41,3 @@ isLoading
 {
 	return vars.isLoading;
 }
-
-exit
-{
-	// If the game is exited, pause IGT
-    timer.IsGameTimePaused = true;
-}
