@@ -1,13 +1,13 @@
 state("Youngblood_x64vk", "bnet") {
 	// Pointers provided by FromDarkHell
-	bool isLoading  : "Youngblood_x64vk.exe", 0x2FE5978;
-	bool isMainMenu : "Youngblood_x64vk.exe", 0x3BF9094;
+	bool isLoading  : "Youngblood_x64vk.exe", 0x3FBF180;
+	int isMainMenu : "Youngblood_x64vk.exe", 0x3EA1970;
 }
 
 state("Youngblood_x64vk", "steam") {
 	// Pointers courtesy of TheFuncannon
-	bool isLoading : "Youngblood_x64vk.exe", 0x2FDF994;
-	bool isMainMenu : "Youngblood_x64vk.exe", 0x2FDFA18;
+	bool isLoading  : "Youngblood_x64vk.exe", 0x2FDF994;
+	bool isMainMenu : "Youngblood_x64vk.exe", 0x3BF3A14;
 }
 
 init {
@@ -22,5 +22,5 @@ init {
 }
 
 isLoading {
-	return (current.isLoading || current.isMainMenu);
+	return (current.isLoading || ((version == "steam" && current.isMainMenu) || (version == "bnet" && current.isMainMenu == 1) ));
 }
