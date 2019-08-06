@@ -11,19 +11,14 @@ state("Youngblood_x64vk", "steam") {
 }
 
 init {
-	var fileInfo = new FileInfo(modules.First().FileName);
-	// The file size is one of the easiest ways to detect the type of game
-	switch(fileInfo.Length) {
-		case 346594304:
-			version = "bnet";
-			break;
-		case 368997888:
-			version = "steam";
-			break;
-		default:
-			print("[YOUNGBLOOD] NEW UPDATE BROKE: " + fileInfo.Length.ToString());
-			break;
-	}
+	var directoryInfo = new DirectoryInfo(modules.First().FileName.Replace("Youngblood_x64vk.exe","") + "\\base");
+	// The standalonefiles.json is one of the easiest ways to detect versions...
+	foreach (FileInfo file in directoryInfo.GetFiles("*.json", SearchOption.TopDirectoryOnly))
+    {
+       if (file.FullName.Contains("standalonefiles.json")) { version = "bnet"; break; }
+       else version = "steam";
+    }
+
 }
 
 isLoading {
