@@ -24,3 +24,9 @@ init {
 isLoading {
 	return (current.isLoading || ((version == "steam" && current.isMainMenu) || (version == "bnet" && current.isMainMenu == 1) ));
 }
+
+// Pause the timer whenever the game closes cause video games.
+exit
+{
+	timer.IsGameTimePaused = true;
+}
