@@ -10,37 +10,32 @@ using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
 using System.Net;
-using UpdateManager;
 
 namespace Livesplit.Borderlands3
 {
     class Borderlands3Component : LogicComponent
     {
-        public override string ComponentName => "Borderlands 3";
-        public Borderlands3Settings Settings { get; set; }
-        private TimerModel timerModel;
-        private MemoryReader memReader;
+        public override string ComponentName => "Borderlands 3 Load Removal";
+        private readonly MemoryReader memReader;
 
         private const string pointerFileName = "LiveSplit.Borderlands3.xml";
-        private string pointerFilePath = "";
+        private readonly string pointerFilePath = "";
 
         public Borderlands3Component(LiveSplitState state)
         {
             Debug.Listeners.Clear();
-            Debug.Listeners.Add(TimedTraceListener.Instance);
+            Debug.Listeners.Add(BL3TraceListener.Instance);
 
             pointerFilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + pointerFileName;
-            UpdatePointerFile();
+            if (!File.Exists(pointerFilePath)) DownloadPointerFile();
 
             PointerInfoReader.Initialize();
-            this.Settings = new Borderlands3Settings();
-            timerModel = new TimerModel { CurrentState = state };
-            timerModel.CurrentState.OnStart += gameTimer_OnStart;
 
             memReader = new MemoryReader();
         }
-        #region Updating
 
+
+        #region Updating
         private bool DownloadPointerFile()
         {
             var client = new WebClient();
@@ -56,76 +51,25 @@ namespace Livesplit.Borderlands3
             }
             finally { client.Dispose(); }
 
+            MessageBox.Show("Pointers successfully updated.", "Pointers updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return true;
         }
-
-        void UpdatePointerFile()
-        {
-            if (CheckForComponentUpdate())
-            {
-
-            }
-        }
-
-        /// <summary>
-        /// Code courtesy of Dalet/Drtchops at https://github.com/drtchops/LiveSplit.Skyrim/blob/master/SkyrimSettings.cs
-        /// </summary>
-        /// <returns></returns>
-        bool CheckForComponentUpdate()
-        {
-            bool updateAvailable = true;
-            var bl3Factory = new Borderlands3Factory();
-            updateAvailable = bl3Factory.CheckForUpdate();
-            if (!updateAvailable)
-            {
-                try
-                {
-                    using (XmlReader reader = XmlReader.Create(bl3Factory.XMLURL))
-                    {
-                        XmlDocument doc = new XmlDocument();
-                        doc.Load(reader);
-                        foreach (XmlNode updateNode in doc.DocumentElement.ChildNodes)
-                        {
-                            Update update = UpdateManager.Update.Parse(updateNode);
-                            if (update.Version > bl3Factory.Version)
-                            {
-                                updateAvailable = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.StackTrace);
-                }
-            }
-
-            return updateAvailable;
-        }
         #endregion
-
-        void gameTimer_OnStart(object sender, EventArgs e)
-        {
-            timerModel.InitializeGameTime();
-        }
-
-
 
         #region Component Definitions
         public override Control GetSettingsControl(LayoutMode mode)
         {
-            return this.Settings;
+            return null;
         }
 
         public override XmlNode GetSettings(XmlDocument document)
         {
-            return this.Settings.GetSettings(document);
+            return document.CreateElement("Settings");
         }
 
         public override void SetSettings(XmlNode settings)
         {
-            this.Settings.SetSettings(settings);
+            return;
         }
 
         public override void Update(IInvalidator invalidator, LiveSplitState state, float width, float height, LayoutMode mode)
@@ -140,29 +84,17 @@ namespace Livesplit.Borderlands3
             }
         }
 
-        public override void Dispose()
-        {
-            timerModel.CurrentState.OnStart -= gameTimer_OnStart;
-        }
+        public override void Dispose() { }
         #endregion
     }
 
 
-    // Code courtesy of Fatalis (https://github.com/fatalis)
-    public class TimedTraceListener : DefaultTraceListener
+    public class BL3TraceListener : DefaultTraceListener
     {
-        private static TimedTraceListener _instance;
-        public static TimedTraceListener Instance => _instance ?? (_instance = new TimedTraceListener());
+        private static BL3TraceListener _instance;
+        public static BL3TraceListener Instance => _instance ?? (_instance = new BL3TraceListener());
 
-        private TimedTraceListener() { }
-
-        public int UpdateCount
-        {
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            get;
-            [MethodImpl(MethodImplOptions.Synchronized)]
-            set;
-        }
+        private BL3TraceListener() { }
 
         public override void WriteLine(string message)
         {

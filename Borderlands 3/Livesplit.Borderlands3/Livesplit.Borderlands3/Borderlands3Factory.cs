@@ -11,7 +11,7 @@ namespace Livesplit.Borderlands3
 {
     class Borderlands3Factory : IComponentFactory
     {
-        public string ComponentName => "Borderlands 3";
+        public string ComponentName => "Borderlands 3 Load Removal";
         public string Description => "Automatic load removal for Borderlands 3";
         public ComponentCategory Category => ComponentCategory.Control;
         public IComponent Create(LiveSplitState state)
@@ -19,11 +19,10 @@ namespace Livesplit.Borderlands3
             return new Borderlands3Component(state);
         }
 
-
         public string UpdateName => ComponentName;
         public string UpdateURL => "https://raw.githubusercontent.com/FromDarkHell/Livesplit.LoadRemovers/master/Borderlands%203/Livesplit.Borderlands3/";
 
-        public string XMLURL => "https://raw.githubusercontent.com/FromDarkHell/Livesplit.LoadRemovers/master/Borderlands%203/Livesplit.Borderlands3/Components/update.Livesplit.Borderlands3.xml";
+        public string XMLURL => UpdateURL + "Components/update.Livesplit.Borderlands3.xml";
 
         public Version Version => Assembly.GetExecutingAssembly().GetName().Version;
     }

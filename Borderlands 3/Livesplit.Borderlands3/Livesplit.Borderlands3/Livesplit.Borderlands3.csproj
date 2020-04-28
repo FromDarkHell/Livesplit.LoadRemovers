@@ -54,21 +54,11 @@
   <ItemGroup>
     <Compile Include="Borderlands3Component.cs" />
     <Compile Include="Borderlands3Factory.cs" />
-    <Compile Include="Borderlands3Settings.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Borderlands3Settings.Designer.cs">
-      <DependentUpon>Borderlands3Settings.cs</DependentUpon>
-    </Compile>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="PointerInfoReader.cs" />
     <Compile Include="MemoryReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VersionHelper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Borderlands3Settings.resx">
-      <DependentUpon>Borderlands3Settings.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

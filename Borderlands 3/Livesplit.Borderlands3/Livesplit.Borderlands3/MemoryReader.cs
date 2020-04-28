@@ -15,9 +15,9 @@ namespace Livesplit.Borderlands3
         private string gameVersion;
         private string gameStorefront;
         private MemoryDefinition versionDefinition;
-        private List<int> pidsToIgnore = new List<int>();
+        private readonly List<int> pidsToIgnore = new List<int>();
+        private bool hasStateChanged = false;
 
-        private bool justStartedTimer = true;
         public MemoryReader()
         {
 
@@ -25,44 +25,41 @@ namespace Livesplit.Borderlands3
 
         public void Update(LiveSplitState state)
         {
+            // Hopefully get our process from the memory, as well as initialize our MemoryDefinition for reading
             if (gameProcess == null || gameProcess.HasExited)
-            {
                 if (!this.TryGetGameProcess(state)) return;
-            }
+
             versionDefinition.UpdateAll(gameProcess);
-            bool bPauseTimer = false;
-            bool bChangedValue = false;
 
-            if (versionDefinition.isMainMenuState != null && (versionDefinition.isMainMenuState.Changed || justStartedTimer))
+            if (!hasStateChanged)
             {
-                Debug.WriteLine("Main Menu State Changed...");
-                bool mainMenuState = (bool)versionDefinition.isMainMenuState.Current;
-
-                bPauseTimer |= mainMenuState;
-                bChangedValue = true;
-            }
-
-            if (versionDefinition.isLoadingState != null && (versionDefinition.isLoadingState.Changed || justStartedTimer))
-            {
-                Debug.WriteLine("Loading State Changed...");
-                bool loadingState = (bool)versionDefinition.isLoadingState.Current;
-                bPauseTimer |= loadingState;
-                bChangedValue = true;
-            }
-
-
-            if (bChangedValue && bPauseTimer)
-            {
-                Debug.WriteLine($"Pausing timer: {bPauseTimer}");
+                bool bPauseTimer = false;
+                if (versionDefinition.isLoadingState != null) bPauseTimer = (bool)versionDefinition.isLoadingState.Current;
+                if (versionDefinition.isMainMenuState != null) bPauseTimer |= (bool)versionDefinition.isMainMenuState.Current;
                 state.IsGameTimePaused = bPauseTimer;
-                justStartedTimer = false;
             }
-            else if (bChangedValue)
-            {
-                Debug.WriteLine($"Unpausing timer: {bPauseTimer}");
-                state.IsGameTimePaused = bPauseTimer;
 
+            if ((versionDefinition.isLoadingState != null && versionDefinition.isLoadingState.Changed) || (versionDefinition.isMainMenuState != null && versionDefinition.isMainMenuState.Changed))
+            {
+                bool bPauseTimer = false;
+                Debug.WriteLine("State changed...");
+
+                if (versionDefinition.isLoadingState != null)
+                {
+                    Debug.WriteLine(string.Format("{0}ausing timer for loading: {1}", (bool)versionDefinition.isLoadingState.Current ? "P" : "Unp", (bool)versionDefinition.isLoadingState.Current));
+                    bPauseTimer |= (bool)versionDefinition.isLoadingState.Current;
+
+                }
+
+                if (versionDefinition.isMainMenuState != null)
+                {
+                    Debug.WriteLine(string.Format("{0}ausing timer for main menu: {1}", (bool)versionDefinition.isMainMenuState.Current ? "P" : "Unp", (bool)versionDefinition.isMainMenuState.Current));
+                    bPauseTimer |= (bool)versionDefinition.isMainMenuState.Current;
+                }
+                state.IsGameTimePaused = bPauseTimer;
+                hasStateChanged = true;
             }
+
         }
 
         private bool TryGetGameProcess(LiveSplitState state)
@@ -90,7 +87,6 @@ namespace Livesplit.Borderlands3
             gameStorefront = possibleStorefront;
             gameVersion = possibleVersion;
             versionDefinition = possibleDef;
-
 
             Debug.WriteLine("Base Address: " + possibleProcess.Modules[0].BaseAddress.ToString("X"));
 
