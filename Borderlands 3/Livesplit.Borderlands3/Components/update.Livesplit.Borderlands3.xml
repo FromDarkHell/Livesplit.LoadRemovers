@@ -1,5 +1,8 @@
 <updates>
   <update version="1.0.1">
+  	<files>
+      <file path="Components/LiveSplit.Borderlands3.dll" status="changed"/>
+    </files>
     <changelog>
       <change>Added support for the entire new BL3 load remover system</change>
     </changelog>
