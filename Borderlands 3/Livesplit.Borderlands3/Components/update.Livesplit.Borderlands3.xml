@@ -1,0 +1,7 @@
+<updates>
+  <update version="1.0.1">
+    <changelog>
+      <change>Added support for the entire new BL3 load remover system</change>
+    </changelog>
+  </update>
+</updates>
