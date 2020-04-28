@@ -22,7 +22,7 @@ namespace Livesplit.Borderlands3
             Debug.Listeners.Add(TimedTraceListener.Instance);
 
 
-            JSONReader.Initialize();
+            PointerInfoReader.Initialize();
             this.Settings = new Borderlands3Settings();
             timerModel = new TimerModel { CurrentState = state };
             timerModel.CurrentState.OnStart += gameTimer_OnStart;

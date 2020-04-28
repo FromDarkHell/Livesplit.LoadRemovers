@@ -13,9 +13,11 @@ namespace Livesplit.Borderlands3
     {
         private Process gameProcess;
         private string gameVersion;
+        private string gameStorefront;
         private MemoryDefinition versionDefinition;
         private List<int> pidsToIgnore = new List<int>();
 
+        private bool justStartedTimer = true;
         public MemoryReader()
         {
 
@@ -31,7 +33,7 @@ namespace Livesplit.Borderlands3
             bool bPauseTimer = false;
             bool bChangedValue = false;
 
-            if (versionDefinition.isMainMenuState != null && versionDefinition.isMainMenuState.Changed)
+            if (versionDefinition.isMainMenuState != null && (versionDefinition.isMainMenuState.Changed || justStartedTimer))
             {
                 Debug.WriteLine("Main Menu State Changed...");
                 bool mainMenuState = (bool)versionDefinition.isMainMenuState.Current;
@@ -40,7 +42,7 @@ namespace Livesplit.Borderlands3
                 bChangedValue = true;
             }
 
-            if (versionDefinition.isLoadingState != null && versionDefinition.isLoadingState.Changed)
+            if (versionDefinition.isLoadingState != null && (versionDefinition.isLoadingState.Changed || justStartedTimer))
             {
                 Debug.WriteLine("Loading State Changed...");
                 bool loadingState = (bool)versionDefinition.isLoadingState.Current;
@@ -53,11 +55,13 @@ namespace Livesplit.Borderlands3
             {
                 Debug.WriteLine($"Pausing timer: {bPauseTimer}");
                 state.IsGameTimePaused = bPauseTimer;
+                justStartedTimer = false;
             }
             else if (bChangedValue)
             {
                 Debug.WriteLine($"Unpausing timer: {bPauseTimer}");
                 state.IsGameTimePaused = bPauseTimer;
+
             }
         }
 
@@ -68,19 +72,22 @@ namespace Livesplit.Borderlands3
             if (possibleProcess == null) return false; // If we were unable to find a version of BL3, might as well stop now.
 
             string possibleVersion = VersionHelper.GetProductVersion(possibleProcess.MainModule.FileName); // A string for our currently possible version
+            string possibleStorefront = VersionHelper.GetStorefront(possibleProcess);
+
             Debug.WriteLine("Possible Version: " + possibleVersion);
 
-            MemoryDefinition possibleDef = new MemoryDefinition(possibleVersion, possibleProcess.Modules[0].BaseAddress);
+            MemoryDefinition possibleDef = new MemoryDefinition(possibleVersion, possibleStorefront);
 
             if (!possibleDef.bKnownVersion || possibleDef == null)
             {
                 pidsToIgnore.Add(possibleProcess.Id);
-                MessageBox.Show("Unexpected game version: " + gameVersion, "LiveSplit.Borderlands3", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Unexpected game version: {possibleVersion} on {possibleStorefront}", "LiveSplit.Borderlands3", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
             // Initialize all of our variables since we have a proper game version now.
             gameProcess = possibleProcess;
+            gameStorefront = possibleStorefront;
             gameVersion = possibleVersion;
             versionDefinition = possibleDef;
 
@@ -100,19 +107,24 @@ namespace Livesplit.Borderlands3
 
         public bool bKnownVersion;
         public Dictionary<string, DeepPointer> pointers = new Dictionary<string, DeepPointer>();
-        public MemoryDefinition(string gameVersion, IntPtr baseAddr)
+        public MemoryDefinition(string gameVersion, string gameStorefront)
         {
             bKnownVersion = true;
-            pointers = JSONReader.getPointersForVersion(gameVersion);
-            Debug.WriteLine("Done reading JSON pointers...");
+            pointers = PointerInfoReader.getPointersForVersion(gameVersion, gameStorefront);
+            Debug.WriteLine("Done reading XML pointers...");
+
+
             if (pointers.Count == 0) // If we're using an unknown version, or atleast one in which we don't have the pointers.
             {
+                Debug.WriteLine($"Unknown pointers for: {gameVersion}");
                 bKnownVersion = false;
                 return;
             }
 
-            if (pointers.ContainsKey("loading")) isLoadingState = new MemoryWatcher<bool>(pointers["loading"]);
-            if (pointers.ContainsKey("mainMenu")) isMainMenuState = new MemoryWatcher<bool>(pointers["mainMenu"]);
+            if (pointers.ContainsKey("loading"))
+                isLoadingState = new MemoryWatcher<bool>(pointers["loading"]);
+            if (pointers.ContainsKey("mainMenu"))
+                isMainMenuState = new MemoryWatcher<bool>(pointers["mainMenu"]);
 
 
             this.AddRange(this.GetType().GetProperties().Where(p => !p.GetIndexParameters().Any()).Select(p => p.GetValue(this, null) as MemoryWatcher).Where(p => p != null));

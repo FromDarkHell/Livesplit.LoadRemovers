@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PointersRoot>
+   <egs>
+      <!-- 1.0 -->
+      <OAK-PADDIESEL1-39>
+         <loading>
+            <base>Borderlands3.exe+0x065E2B60</base>
+            <offsets>
+               <element>0xC4</element>
+            </offsets>
+         </loading>
+         <mainMenu />
+      </OAK-PADDIESEL1-39>
+
+      <OAK-PATCHDIESEL2-32>
+         <loading>
+            <base>Borderlands3.exe+0x63CEA98</base>
+            <offsets />
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x63B50C4</base>
+            <offsets/>
+         </mainMenu>
+      </OAK-PATCHDIESEL2-32>
+   </egs>
+
+   <steam>
+
+      <OAK-PATCHWIN641-32>
+         <loading>
+            <base>0x0671EA10</base>
+            <offsets>
+               <element>0x130</element>
+               <element>0x50</element>
+               <element>0x68</element>
+               <element>0x9C</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>0x613F0E8</base>
+            <offsets />
+         </mainMenu>
+      </OAK-PATCHWIN641-32>
+   </steam>
+
+</PointersRoot>

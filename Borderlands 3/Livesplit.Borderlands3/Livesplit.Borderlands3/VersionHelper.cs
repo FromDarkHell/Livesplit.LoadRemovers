@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Management;
 using System.Runtime.InteropServices;
 
 namespace Livesplit.Borderlands3
@@ -22,6 +25,7 @@ namespace Livesplit.Borderlands3
         [DllImport(_DllName, EntryPoint = "VerQueryValueW", CharSet = CharSet.Unicode, ExactSpelling = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool VerQueryValue(IntPtr block, string subblock, out IntPtr buffer, out uint size);
+
         #endregion
 
         public static string GetProductVersion(string path)
@@ -82,6 +86,25 @@ namespace Livesplit.Borderlands3
 
             value = Marshal.PtrToStringUni(pointer);
             return true;
+        }
+
+        public static string GetStorefront(Process possibleProcess)
+        {
+            string cmdArgs = possibleProcess.GetCommandLine();
+            if (cmdArgs.Contains("-epicenv") || cmdArgs.Contains(".egstore") || cmdArgs.Contains(" -AUTH_TYPE") || cmdArgs.Contains("epicapp"))
+                return "egs";
+            else
+                return "steam";
+        }
+
+        private static string GetCommandLine(this Process process)
+        {
+            using (ManagementObjectSearcher searcher = new ManagementObjectSearcher("SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + process.Id))
+            using (ManagementObjectCollection objects = searcher.Get())
+            {
+                return objects.Cast<ManagementBaseObject>().SingleOrDefault()?["CommandLine"]?.ToString();
+            }
+
         }
     }
 }
