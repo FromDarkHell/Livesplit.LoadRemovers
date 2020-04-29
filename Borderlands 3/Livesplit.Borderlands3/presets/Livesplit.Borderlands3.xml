@@ -25,14 +25,15 @@
 
       <OAK-PATCHDIESEL-178>
          <loading>
-            <base>Borderlands3.exe+0x067E2658</base>
+            <base>Borderlands3.exe+0x06A70880</base>
             <offsets>
-               <element>0x388</element>
-               <element>0xB38</element>
-               <element>0xB0C</element>
+               <element>0xD0</element>
             </offsets>
          </loading>
-         <mainMenu/>
+         <mainMenu>
+            <base>Borderlands3.exe+0x6AD5A48</base>
+            <offsets />
+         </mainMenu>
       </OAK-PATCHDIESEL-178>
    </egs>
 

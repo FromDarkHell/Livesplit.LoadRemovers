@@ -1,15 +1,14 @@
-﻿using LiveSplit.Model;
-using LiveSplit.UI.Components;
-using LiveSplit.UI;
-using System;
-using System.Diagnostics;
-using UpdateManager;
-using System.Runtime.CompilerServices;
-using System.Xml;
-using System.Windows.Forms;
+﻿using System;
 using System.IO;
-using System.Reflection;
 using System.Net;
+using System.Xml;
+using LiveSplit.UI;
+using LiveSplit.Model;
+using System.Reflection;
+using System.Diagnostics;
+using System.Windows.Forms;
+using LiveSplit.UI.Components;
+
 
 namespace Livesplit.Borderlands3
 {

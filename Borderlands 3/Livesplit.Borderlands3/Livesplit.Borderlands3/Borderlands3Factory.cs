@@ -2,7 +2,6 @@
 using LiveSplit.UI.Components;
 using Livesplit.Borderlands3;
 using System;
-
 using System.Reflection;
 
 [assembly: ComponentFactory(typeof(Borderlands3Factory))]
