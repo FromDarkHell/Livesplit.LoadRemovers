@@ -50,16 +50,16 @@
             </offsets>
          </loading>
          <mainMenu>
-            <!-- Literally just Borderlands3.g_pRTPCMgr -->
-            <base>Borderlands3.exe+0x066d33e0</base>
+            <!-- Borderlands3.g_pRegistryMgr+20 -->
+            <base>Borderlands3.exe+0x066D33E0</base>
             <offsets>
-               <element>0x0</element>
-               <element>0x690</element>
-               <element>0x30</element>
-               <element>0xC</element>
+               <element>0x2E8</element>
+               <element>0x370</element>
+               <element>0x4EC</element>
             </offsets>
          </mainMenu>
       </OAK-PATCHWIN64-49>
+
       <OAK-PATCHWIN641-32>
          <loading>
             <base>Borderlands3.exe+0x0671EA10</base>
@@ -71,15 +71,15 @@
             </offsets>
          </loading>
          <mainMenu>
-            <base>Borderlands3.exe+0x067a0700</base>
+            <base>Borderlands3.exe+0x067A0728</base>
             <offsets>
-               <element>0x0</element>
-               <element>0x690</element>
-               <element>0x30</element>
-               <element>0xC</element>
+               <element>0x2E8</element>
+               <element>0x370</element>
+               <element>0x4EC</element>
             </offsets>
          </mainMenu>
       </OAK-PATCHWIN641-32>
+
       <OAK-PATCHWIN64-79>
          <loading>
             <base>Borderlands3.exe+0x067D29A0</base>
@@ -91,12 +91,11 @@
             </offsets>
          </loading>
          <mainMenu>
-            <base>Borderlands3.exe+0x06854740</base>
+            <base>Borderlands3.exe+0x06854768</base>
             <offsets>
-               <element>0x0</element>
-               <element>0x690</element>
-               <element>0x30</element>
-               <element>0xC</element>
+               <element>0x2E8</element>
+               <element>0x370</element>
+               <element>0x4EC</element>
             </offsets>
          </mainMenu>
       </OAK-PATCHWIN64-79>
