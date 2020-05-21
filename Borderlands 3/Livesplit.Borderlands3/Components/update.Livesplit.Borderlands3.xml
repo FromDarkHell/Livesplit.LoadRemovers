@@ -1,4 +1,13 @@
 <updates>
+  <update version="1.1">
+    <files>
+      <file path="Components/LiveSplit.Borderlands3.dll" status="changed"/>
+      <file path="Components/Livesplit.Borderlands3.xml" status="changed"/>
+    </files>
+    <changelog>
+      <change>Update Steam Menu Pointers (by apple1417)</change>
+    </changelog>
+  </update>
   <update version="1.0">
     <files>
       <file path="Components/LiveSplit.Borderlands3.dll" status="changed"/>

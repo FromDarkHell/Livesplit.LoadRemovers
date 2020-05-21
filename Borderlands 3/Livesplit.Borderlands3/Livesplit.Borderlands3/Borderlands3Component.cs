@@ -38,7 +38,7 @@ namespace Livesplit.Borderlands3
         private bool DownloadPointerFile()
         {
             var client = new WebClient();
-            var url = "https://raw.githubusercontent.com/FromDarkHell/Livesplit.LoadRemovers/master/Borderlands%203/Livesplit.Borderlands3/presets/Livesplit.Borderlands3.xml";
+            var url = "https://raw.githubusercontent.com/FromDarkHell/Livesplit.LoadRemovers/master/Borderlands%203/Livesplit.Borderlands3/Components/Livesplit.Borderlands3.xml";
             Debug.WriteLine($"Downloading at: {url}");
             try { client.DownloadFile(url, pointerFilePath); }
             catch (Exception ex)

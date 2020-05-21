@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PointersRoot>
+   <egs>
+      <!-- 1.0 -->
+      <OAK-PADDIESEL1-39>
+         <loading>
+            <base>Borderlands3.exe+0x065E2B60</base>
+            <offsets>
+               <element>0xC4</element>
+            </offsets>
+         </loading>
+         <mainMenu />
+      </OAK-PADDIESEL1-39>
+
+      <OAK-PATCHDIESEL2-32>
+         <loading>
+            <base>Borderlands3.exe+0x63CEA98</base>
+            <offsets />
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x63B50C4</base>
+            <offsets/>
+         </mainMenu>
+      </OAK-PATCHDIESEL2-32>
+
+      <OAK-PATCHDIESEL-178>
+         <loading>
+            <base>Borderlands3.exe+0x06A70880</base>
+            <offsets>
+               <element>0xD0</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x6AD5A48</base>
+            <offsets />
+         </mainMenu>
+      </OAK-PATCHDIESEL-178>
+   </egs>
+
+   <steam>
+      <OAK-PATCHWIN64-49>
+         <loading>
+            <!-- AOB scan for 48 8b 0d  ???????? 33 d2 48 85 c9 -->
+            <base>Borderlands3.exe+0x06651780</base>
+            <offsets>
+               <element>0x130</element>
+               <element>0x50</element>
+               <element>0x68</element>
+               <element>0x9C</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <!-- Literally just Borderlands3.g_pRTPCMgr -->
+            <base>Borderlands3.exe+0x066d33e0</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x690</element>
+               <element>0x30</element>
+               <element>0xC</element>
+            </offsets>
+         </mainMenu>
+      </OAK-PATCHWIN64-49>
+      <OAK-PATCHWIN641-32>
+         <loading>
+            <base>Borderlands3.exe+0x0671EA10</base>
+            <offsets>
+               <element>0x130</element>
+               <element>0x50</element>
+               <element>0x68</element>
+               <element>0x9C</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x067a0700</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x690</element>
+               <element>0x30</element>
+               <element>0xC</element>
+            </offsets>
+         </mainMenu>
+      </OAK-PATCHWIN641-32>
+      <OAK-PATCHWIN64-79>
+         <loading>
+            <base>Borderlands3.exe+0x067D29A0</base>
+            <offsets>
+               <element>0x130</element>
+               <element>0x50</element>
+               <element>0x68</element>
+               <element>0x9C</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x06854740</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x690</element>
+               <element>0x30</element>
+               <element>0xC</element>
+            </offsets>
+         </mainMenu>
+      </OAK-PATCHWIN64-79>
+   </steam>
+
+</PointersRoot>
