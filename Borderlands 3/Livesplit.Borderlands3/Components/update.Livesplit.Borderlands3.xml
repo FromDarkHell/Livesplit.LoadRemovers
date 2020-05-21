@@ -6,6 +6,7 @@
     </files>
     <changelog>
       <change>Update Steam Menu Pointers (by apple1417)</change>
+      <change>Fix auto updating (whoopsie)</change>
     </changelog>
   </update>
   <update version="1.0">
