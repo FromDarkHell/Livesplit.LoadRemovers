@@ -8,7 +8,8 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Windows.Forms;
 using LiveSplit.UI.Components;
-
+using System.Security.Cryptography;
+using System.Xml.Linq;
 
 namespace Livesplit.Borderlands3
 {
@@ -27,6 +28,7 @@ namespace Livesplit.Borderlands3
 
             pointerFilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\" + pointerFileName;
             if (!File.Exists(pointerFilePath)) DownloadPointerFile();
+            else CheckPointerFileForUpdate();
 
             PointerInfoReader.Initialize();
 
@@ -51,6 +53,28 @@ namespace Livesplit.Borderlands3
             finally { client.Dispose(); }
 
             MessageBox.Show("Pointers successfully updated.", "Pointers updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return true;
+        }
+
+        private bool CheckPointerFileForUpdate()
+        {
+            var client = new WebClient();
+            var url = "https://raw.githubusercontent.com/FromDarkHell/Livesplit.LoadRemovers/master/Borderlands%203/Livesplit.Borderlands3/Components/Livesplit.Borderlands3.xml";
+            Debug.WriteLine($"Updating : {url}");
+            try { 
+                string response = client.DownloadString(url);
+                Debug.WriteLine(response);
+                XDocument doc = XDocument.Parse(response);
+                MessageBox.Show(doc.Root.ToString());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Pointer downloaded failed...\n Error message: " + ex.Message, "Presets update failed",
+    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Debug.WriteLine(ex.StackTrace);
+                return false;
+            }
+
             return true;
         }
         #endregion
