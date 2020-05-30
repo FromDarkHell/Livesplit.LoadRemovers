@@ -47,7 +47,7 @@ namespace Livesplit.Borderlands3
             try { client.DownloadFile(url, pointerFilePath); }
             catch (Exception ex)
             {
-                MessageBox.Show("Pointer downloaded failed...\n Error message: " + ex.Message, "Presets update failed",
+                MessageBox.Show("Pointer Download failed...\n Error message: " + ex.Message, "Presets update failed",
     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Debug.WriteLine(ex.StackTrace);
                 return false;
@@ -66,15 +66,13 @@ namespace Livesplit.Borderlands3
             try { 
                 string response = client.DownloadString(url);
                 Debug.WriteLine(response);
+
                 XDocument doc = XDocument.Parse(response);
                 Version serverVersion = Version.Parse(doc.XPathSelectElement("/PointersRoot").Attributes().First().Value);
 
                 XDocument localDoc = XDocument.Load("Components\\Livesplit.Borderlands3.xml");
                 Version localVersion;
-                if (localDoc.XPathSelectElement("/PointersRoot").HasAttributes)
-                {
-                    localVersion = Version.Parse(localDoc.XPathSelectElement("/PointersRoot").Attributes().First().Value);
-                }
+                if (localDoc.XPathSelectElement("/PointersRoot").HasAttributes) localVersion = Version.Parse(localDoc.XPathSelectElement("/PointersRoot").Attributes().First().Value);
                 else { localVersion = new Version("0.0.0"); }
 
                 if(serverVersion > localVersion)
@@ -88,7 +86,7 @@ namespace Livesplit.Borderlands3
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Pointer downloaded failed...\n Error message: " + ex.Message, "Presets update failed",
+                MessageBox.Show("Pointer Update failed...\n Error message: " + ex.Message, "Presets update failed",
     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Debug.WriteLine(ex.StackTrace);
                 return false;
