@@ -19,7 +19,7 @@ namespace Livesplit.Borderlands3
         }
 
         public string UpdateName => ComponentName;
-        public string UpdateURL => "https://github.com/FromDarkHell/Livesplit.LoadRemovers/raw/master/Borderlands%203/Livesplit.Borderlands3/";
+        public string UpdateURL => "https://raw.githubusercontent.com/FromDarkHell/Livesplit.LoadRemovers/master/Borderlands%203/Livesplit.Borderlands3/";
 
         public string XMLURL => UpdateURL + "Components/update.Livesplit.Borderlands3.xml";
 

@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using LiveSplit.UI.Components;
 using System.Security.Cryptography;
 using System.Xml.Linq;
+using System.Xml.XPath;
+using System.Linq;
 
 namespace Livesplit.Borderlands3
 {
@@ -65,7 +67,24 @@ namespace Livesplit.Borderlands3
                 string response = client.DownloadString(url);
                 Debug.WriteLine(response);
                 XDocument doc = XDocument.Parse(response);
-                MessageBox.Show(doc.Root.ToString());
+                Version serverVersion = Version.Parse(doc.XPathSelectElement("/PointersRoot").Attributes().First().Value);
+
+                XDocument localDoc = XDocument.Load("Components\\Livesplit.Borderlands3.xml");
+                Version localVersion;
+                if (localDoc.XPathSelectElement("/PointersRoot").HasAttributes)
+                {
+                    localVersion = Version.Parse(localDoc.XPathSelectElement("/PointersRoot").Attributes().First().Value);
+                }
+                else { localVersion = new Version("0.0.0"); }
+
+                if(serverVersion > localVersion)
+                {
+                    if(MessageBox.Show("There is an update available for Borderlands 3 Pointers...\nDo you want to update?", "Update available", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        File.WriteAllText(pointerFilePath, response);
+                    }
+                }
+
             }
             catch (Exception ex)
             {
