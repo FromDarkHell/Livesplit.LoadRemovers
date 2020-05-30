@@ -65,7 +65,7 @@ namespace Livesplit.Borderlands3
                 string response = client.DownloadString(url);
                 Debug.WriteLine(response);
                 XDocument doc = XDocument.Parse(response);
-                MessageBox.Show(doc.Root.ToString());
+                MessageBox.Show(doc.Root.LastAttribute.Value.ToString());
             }
             catch (Exception ex)
             {
