@@ -13,6 +13,16 @@ namespace Livesplit.Borderlands3
     /// <summary>
     /// This function reads our `Livesplit.Borderlands3.json` file, and it gathers the respective pointers for a specific version.
     /// </summary>
+    
+    public class PointerInfo
+    {
+        public DeepPointer ptr = null;
+        public int value = 0;
+        public bool activeWhenValue = false;
+
+        public bool ShouldPauseOnValue(int actualValue) => (value == actualValue) == activeWhenValue;
+    }
+    
     public static class PointerInfoReader
     {
         private static XDocument pointerDocument = null;
@@ -29,46 +39,65 @@ namespace Livesplit.Borderlands3
             }
         }
 
-        public static Dictionary<string, DeepPointer> getPointersForVersion(string version, string storefront)
+        public static Dictionary<string, PointerInfo> getPointersForVersion(string version, string storefront)
         {
             Debug.WriteLine($"Reading pointers for {storefront}/{version}");
-            Dictionary<string, DeepPointer> addrs = new Dictionary<string, DeepPointer>();
+            Dictionary<string, PointerInfo> addrs = new Dictionary<string, PointerInfo>();
+
             if (pointerDocument.XPathSelectElement($"/PointersRoot/{storefront}/{version}") == null)
             {
                 Debug.WriteLine($"Unable to find pointers for: {storefront}/{version}");
                 return addrs;
             }
             XElement versionNode = pointerDocument.XPathSelectElement($"/PointersRoot/{storefront}/{version}");
-            if (!versionNode.Elements("loading").Elements("base").Any()) Debug.WriteLine($"Unable to find loading pointer for {version}");
-            else  // This'll run whenever we actually have a proper loading pointer...
-                addrs.Add("loading", ReadDeepPointer(versionNode.Element("loading")));
 
-            if (!versionNode.Elements("mainMenu").Elements("base").Any()) Debug.WriteLine($"Unable to find main menu pointer for {version}");
-            else addrs.Add("mainMenu", ReadDeepPointer(versionNode.Element("mainMenu")));
+            if (versionNode.Elements("loading").Elements("base").Any())
+                addrs.Add("loading", ReadPointerInfo(versionNode.Element("loading")));
+            else
+                Debug.WriteLine($"Unable to find loading pointer for {version}");
+
+            if (versionNode.Elements("mainMenu").Elements("base").Any())
+                addrs.Add("mainMenu", ReadPointerInfo(versionNode.Element("mainMenu")));
+            else
+                Debug.WriteLine($"Unable to find main menu pointer for {version}");
 
             return addrs;
         }
-        private static DeepPointer ReadDeepPointer(XElement pointerNode)
+
+        private static PointerInfo ReadPointerInfo(XElement pointerNode)
         {
+            PointerInfo info = new PointerInfo();
+
             string baseValue = pointerNode.Element("base").Value;
             string module = baseValue.Contains("+") ? baseValue.Split('+')[0] : "Borderlands3.exe";
-            Debug.WriteLine(baseValue.Contains("+") ? baseValue.Split('+')[1] : baseValue);
             int baseAddress = Convert.ToInt32(baseValue.Contains("+") ? baseValue.Split('+')[1] : baseValue, 16);
 
-            Debug.WriteLine($"Module + Address: {module},{baseAddress} | Offset Count: {pointerNode.Elements("offsets").Count()}");
+            Debug.WriteLine($"Module + Address: {module},0x{baseAddress:X} | Offset Count: {pointerNode.Elements("offsets").Count()}");
             int[] offsets = new int[] { };
-            if (pointerNode.Element("offsets").Nodes().Any())
+            XElement offsetsNode = pointerNode.Element("offsets");
+            if (offsetsNode?.Nodes()?.Any() ?? false)
             {
                 Debug.WriteLine("Reading offsets...");
-                offsets = pointerNode.Element("offsets").Elements().Select(x => Convert.ToInt32(x.Value, 16)).ToArray();
-                Debug.WriteLine(string.Join(",", offsets));
+                offsets = offsetsNode.Elements().Select(x => Convert.ToInt32(x.Value, 16)).ToArray();
+                Debug.WriteLine(string.Join(",", offsets.Select(v => $"0x{v:X}")));
+            } else Debug.WriteLine($"No offsets found for: {baseValue}");
+
+            info.ptr = new DeepPointer(module, baseAddress, offsets);
+
+            XElement valueNode = pointerNode.Element("value");
+            if (valueNode != null)
+            {
+                info.value = Convert.ToInt32(valueNode.Value, 16);
+                Debug.WriteLine($"Using custom value 0x{info.value:X}");
+
+                if (valueNode.Attribute("activeWhen")?.Value?.ToLower() == "equal")
+                {
+                    Debug.WriteLine("Active when equal to value");
+                    info.activeWhenValue = true;
+                } else Debug.WriteLine("Active when not equal to value");
             }
-            else Debug.WriteLine($"No offsets found for: {baseValue}");
 
-            return new DeepPointer(module, baseAddress, offsets);
+            return info;
         }
-
     }
-
-
 }

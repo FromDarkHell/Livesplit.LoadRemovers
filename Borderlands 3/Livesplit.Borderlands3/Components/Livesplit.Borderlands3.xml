@@ -82,21 +82,19 @@
 
       <OAK-PATCHWIN64-79>
          <loading>
-            <base>Borderlands3.exe+0x067D29A0</base>
+            <base>Borderlands3.exe+0x0683FDC0</base>
             <offsets>
-               <element>0x130</element>
-               <element>0x50</element>
-               <element>0x68</element>
-               <element>0x9C</element>
+               <element>0xF8</element>
+               <element>0x9DC</element>
             </offsets>
          </loading>
          <mainMenu>
-            <base>Borderlands3.exe+0x06854768</base>
+            <base>Borderlands3.exe+0x05F91C30</base>
             <offsets>
-               <element>0x2E8</element>
-               <element>0x370</element>
-               <element>0x4EC</element>
+               <element>0x0</element>
+               <element>0x18</element>
             </offsets>
+            <value activeWhen="equal">0x124A</value>
          </mainMenu>
       </OAK-PATCHWIN64-79>
    </steam>
