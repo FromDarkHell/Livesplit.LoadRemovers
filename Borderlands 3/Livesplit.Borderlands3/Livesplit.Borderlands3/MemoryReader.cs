@@ -15,6 +15,7 @@ namespace Livesplit.Borderlands3
         private string gameStorefront;
         private MemoryDefinition versionDefinition;
         private readonly List<int> pidsToIgnore = new List<int>();
+        private bool initalUpdate = false;
 
         public void Update(LiveSplitState state)
         {
@@ -22,13 +23,15 @@ namespace Livesplit.Borderlands3
             if (gameProcess == null || gameProcess.HasExited || versionDefinition == null)
                 if (!this.TryGetGameProcess(state)) return;
 
+            if (state.CurrentPhase == TimerPhase.NotRunning) initalUpdate = true;
+            // No need to evaluate anything if not running, paused, or ended
             if (state.CurrentPhase != TimerPhase.Running) return;
 
             versionDefinition.UpdateAll(gameProcess);
 
             if ((versionDefinition.isLoadingState?.Changed ?? false)
                 || (versionDefinition.isMainMenuState?.Changed ?? false)
-                || state.CurrentAttemptDuration == TimeSpan.Zero)
+                || initalUpdate)
             {
                 bool bPauseTimer = false;
                 Debug.WriteLine("State changed...");
@@ -66,6 +69,10 @@ namespace Livesplit.Borderlands3
                 }
 
                 state.IsGameTimePaused = bPauseTimer;
+
+                if (initalUpdate && bPauseTimer)
+                    state.SetGameTime(TimeSpan.Zero);
+                initalUpdate = false;
             }
         }
 
