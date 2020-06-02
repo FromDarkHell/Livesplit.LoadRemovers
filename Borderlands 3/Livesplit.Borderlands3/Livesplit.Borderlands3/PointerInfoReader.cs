@@ -52,14 +52,28 @@ namespace Livesplit.Borderlands3
             XElement versionNode = pointerDocument.XPathSelectElement($"/PointersRoot/{storefront}/{version}");
 
             if (versionNode.Elements("loading").Elements("base").Any())
+            {
+                Debug.WriteLine("Loading pointer:");
                 addrs.Add("loading", ReadPointerInfo(versionNode.Element("loading")));
+            }
             else
                 Debug.WriteLine($"Unable to find loading pointer for {version}");
 
             if (versionNode.Elements("mainMenu").Elements("base").Any())
+            {
+                Debug.WriteLine("Main menu pointer:");
                 addrs.Add("mainMenu", ReadPointerInfo(versionNode.Element("mainMenu")));
+            }
             else
                 Debug.WriteLine($"Unable to find main menu pointer for {version}");
+
+            if (versionNode.Elements("levelSplits").Elements("base").Any())
+            {
+                Debug.WriteLine("Level splits pointer:");
+                addrs.Add("levelSplits", ReadPointerInfo(versionNode.Element("levelSplits")));
+            }
+            else
+                Debug.WriteLine($"Unable to find level splits pointer for {version}");
 
             return addrs;
         }

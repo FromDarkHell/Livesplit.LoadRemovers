@@ -13,9 +13,20 @@ namespace Livesplit.Borderlands3
         private Process gameProcess;
         private string gameVersion;
         private string gameStorefront;
-        private MemoryDefinition versionDefinition;
         private readonly List<int> pidsToIgnore = new List<int>();
+
+        private TimerModel timerModel;
+        private Borderlands3Settings settings;
+
+        private MemoryDefinition versionDefinition;
+        private int lastLevel = 0;
         private bool initalUpdate = false;
+
+        public MemoryReader(TimerModel timerModel, Borderlands3Settings settings)
+        {
+            this.timerModel = timerModel;
+            this.settings = settings;
+        }
 
         public void Update(LiveSplitState state)
         {
@@ -23,14 +34,18 @@ namespace Livesplit.Borderlands3
             if (gameProcess == null || gameProcess.HasExited || versionDefinition == null)
                 if (!this.TryGetGameProcess(state)) return;
 
-            if (state.CurrentPhase == TimerPhase.NotRunning) initalUpdate = true;
             // No need to evaluate anything if not running, paused, or ended
-            if (state.CurrentPhase != TimerPhase.Running) return;
+            if (state.CurrentPhase != TimerPhase.Running)
+            {
+                initalUpdate = true;
+                return;
+            }
 
             versionDefinition.UpdateAll(gameProcess);
 
             if ((versionDefinition.isLoadingState?.Changed ?? false)
                 || (versionDefinition.isMainMenuState?.Changed ?? false)
+                || (versionDefinition.levelSplitsState?.Changed ?? false)
                 || initalUpdate)
             {
                 bool bPauseTimer = false;
@@ -68,6 +83,21 @@ namespace Livesplit.Borderlands3
                     ));
                 }
 
+                if (versionDefinition.levelSplitsState != null && settings.AllowLevelSplits)
+                {
+                    int currentLevel = versionDefinition.levelSplitsState.Current;
+                    if (initalUpdate)
+                        lastLevel = currentLevel;
+                    else if (currentLevel != lastLevel
+                             && currentLevel != 0 // Filter out invalid pointers
+                             && currentLevel != versionDefinition.levelSplitsInfo.value) // Filter out main menu
+                    {
+                        Debug.WriteLine($"Level changed from 0x{lastLevel:X} to 0x{currentLevel:X}");
+                        timerModel.Split();
+                        lastLevel = currentLevel;
+                    }
+                }
+
                 state.IsGameTimePaused = bPauseTimer;
 
                 if (initalUpdate && bPauseTimer)
@@ -80,10 +110,16 @@ namespace Livesplit.Borderlands3
         {
             Process possibleProcess = Process.GetProcessesByName("Borderlands3").FirstOrDefault(p => p.MainModule.FileName.Contains("OakGame") && !pidsToIgnore.Contains(p.Id)); // Find a running version of BL3 (proper) without an improper version
 
-            if (possibleProcess == null) return false; // If we were unable to find a version of BL3, might as well stop now.
+            // If we were unable to find a version of BL3, might as well stop now.
+            if (possibleProcess == null)
+            {
+                settings.SetGameVersion("Not Found");
+                return false;
+            }
 
             string possibleVersion = VersionHelper.GetProductVersion(possibleProcess.MainModule.FileName); // A string for our currently possible version
             string possibleStorefront = VersionHelper.GetStorefront(possibleProcess);
+            settings.SetGameVersion(possibleStorefront + "/" + possibleVersion);
 
             Debug.WriteLine("Possible Version: " + possibleVersion);
 
@@ -118,6 +154,9 @@ namespace Livesplit.Borderlands3
         public MemoryWatcher<int> isLoadingState { get; } = null;
         public PointerInfo isLoadingInfo { get; } = null;
 
+        public MemoryWatcher<int> levelSplitsState { get; } = null;
+        public PointerInfo levelSplitsInfo { get; } = null;
+
         public bool bKnownVersion;
         public Dictionary<string, PointerInfo> pointers = new Dictionary<string, PointerInfo>();
         public MemoryDefinition(string gameVersion, string gameStorefront)
@@ -146,6 +185,11 @@ namespace Livesplit.Borderlands3
                 isMainMenuState = new MemoryWatcher<int>(isMainMenuInfo.ptr);
             }
 
+            if (pointers.ContainsKey("levelSplits"))
+            {
+                levelSplitsInfo = pointers["levelSplits"];
+                levelSplitsState = new MemoryWatcher<int>(levelSplitsInfo.ptr);
+            }
 
             this.AddRange(this.GetType().GetProperties().Where(p => !p.GetIndexParameters().Any()).Select(p => p.GetValue(this, null) as MemoryWatcher).Where(p => p != null));
         }

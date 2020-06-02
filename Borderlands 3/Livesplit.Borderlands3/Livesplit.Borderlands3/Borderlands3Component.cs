@@ -18,6 +18,8 @@ namespace Livesplit.Borderlands3
     class Borderlands3Component : LogicComponent
     {
         public override string ComponentName => "Borderlands 3 Load Removal";
+        private readonly TimerModel timerModel;
+        private readonly Borderlands3Settings settings;
         private readonly MemoryReader memReader;
 
         private const string pointerFileName = "LiveSplit.Borderlands3.xml";
@@ -34,7 +36,9 @@ namespace Livesplit.Borderlands3
 
             PointerInfoReader.Initialize();
 
-            memReader = new MemoryReader();
+            timerModel = new TimerModel() { CurrentState = state };
+            settings = new Borderlands3Settings();
+            memReader = new MemoryReader(timerModel, settings);
         }
 
 
@@ -99,17 +103,17 @@ namespace Livesplit.Borderlands3
         #region Component Definitions
         public override Control GetSettingsControl(LayoutMode mode)
         {
-            return null;
+            return settings;
         }
 
         public override XmlNode GetSettings(XmlDocument document)
         {
-            return document.CreateElement("Settings");
+            return settings.GetSettings(document);
         }
 
         public override void SetSettings(XmlNode settings)
         {
-            return;
+            this.settings.SetSettings(settings);
         }
 
         public override void Update(IInvalidator invalidator, LiveSplitState state, float width, float height, LayoutMode mode)
