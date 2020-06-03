@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PointersRoot pointerVersion="1.1">
+<PointersRoot pointerVersion="1.2">
    <egs>
       <!-- 1.0 -->
       <OAK-PADDIESEL1-39>
@@ -38,66 +38,83 @@
    </egs>
 
    <steam>
+      <!--- https://gist.github.com/apple1417/111a6d7f3a4b786d4752e3b458617e26#simplified-guide -->
       <OAK-PATCHWIN64-49>
          <loading>
-            <!-- AOB scan for 48 8b 0d  ???????? 33 d2 48 85 c9 -->
-            <base>Borderlands3.exe+0x06651780</base>
+            <base>Borderlands3.exe+0x066BEB40</base>
             <offsets>
-               <element>0x130</element>
-               <element>0x50</element>
-               <element>0x68</element>
-               <element>0x9C</element>
+               <element>0xF8</element>
+               <element>0x984</element>
             </offsets>
          </loading>
          <mainMenu>
-            <!-- Borderlands3.g_pRegistryMgr+20 -->
-            <base>Borderlands3.exe+0x066D33E0</base>
+            <base>Borderlands3.exe+0x06321C60</base>
             <offsets>
-               <element>0x2E8</element>
-               <element>0x370</element>
-               <element>0x4EC</element>
+               <element>0x0</element>
+               <element>0x18</element>
             </offsets>
+            <value activeWhen="equal">0x1246</value>
          </mainMenu>
+         <levelSplits>
+            <base>Borderlands3.exe+0x06321C60</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="levelNot">0x1246</value>
+         </levelSplits>
       </OAK-PATCHWIN64-49>
 
       <OAK-PATCHWIN641-32>
          <loading>
-            <base>Borderlands3.exe+0x0671EA10</base>
+            <base>Borderlands3.exe+0x0678BE00</base>
             <offsets>
-               <element>0x130</element>
-               <element>0x50</element>
-               <element>0x68</element>
-               <element>0x9C</element>
+               <element>0xF8</element>
+               <element>0x9C4</element>
             </offsets>
          </loading>
          <mainMenu>
-            <base>Borderlands3.exe+0x067A0728</base>
+            <base>Borderlands3.exe+0x05E922F0</base>
             <offsets>
-               <element>0x2E8</element>
-               <element>0x370</element>
-               <element>0x4EC</element>
+               <element>0x0</element>
+               <element>0x18</element>
             </offsets>
+            <value activeWhen="equal">0x1246</value>
          </mainMenu>
+         <levelSplits>
+            <base>Borderlands3.exe+0x05E922F0</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="levelNot">0x1246</value>
+         </levelSplits>
       </OAK-PATCHWIN641-32>
 
       <OAK-PATCHWIN64-79>
          <loading>
-            <base>Borderlands3.exe+0x067D29A0</base>
+            <base>Borderlands3.exe+0x0683FDC0</base>
             <offsets>
-               <element>0x130</element>
-               <element>0x50</element>
-               <element>0x68</element>
-               <element>0x9C</element>
+               <element>0xF8</element>
+               <element>0x9DC</element>
             </offsets>
          </loading>
          <mainMenu>
-            <base>Borderlands3.exe+0x06854768</base>
+            <base>Borderlands3.exe+0x05F91C30</base>
             <offsets>
-               <element>0x2E8</element>
-               <element>0x370</element>
-               <element>0x4EC</element>
+               <element>0x0</element>
+               <element>0x18</element>
             </offsets>
+            <value activeWhen="equal">0x124A</value>
          </mainMenu>
+         <levelSplits>
+            <base>Borderlands3.exe+0x05F91C30</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="levelNot">0x124A</value>
+         </levelSplits>
       </OAK-PATCHWIN64-79>
    </steam>
 

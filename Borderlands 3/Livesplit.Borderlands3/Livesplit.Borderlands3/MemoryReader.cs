@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
@@ -12,62 +13,113 @@ namespace Livesplit.Borderlands3
         private Process gameProcess;
         private string gameVersion;
         private string gameStorefront;
-        private MemoryDefinition versionDefinition;
         private readonly List<int> pidsToIgnore = new List<int>();
-        private bool hasStateChanged = false;
 
-        public MemoryReader()
+        private TimerModel timerModel;
+        private Borderlands3Settings settings;
+
+        private MemoryDefinition versionDefinition;
+        private int lastLevel = 0;
+        private bool initalUpdate = false;
+
+        public MemoryReader(TimerModel timerModel, Borderlands3Settings settings)
         {
-
+            this.timerModel = timerModel;
+            this.settings = settings;
         }
 
         public void Update(LiveSplitState state)
         {
             // Hopefully get our process from the memory, as well as initialize our MemoryDefinition for reading
-            if (gameProcess == null || gameProcess.HasExited)
+            if (gameProcess == null || gameProcess.HasExited || versionDefinition == null)
                 if (!this.TryGetGameProcess(state)) return;
+
+            // No need to evaluate anything if not running, paused, or ended
+            if (state.CurrentPhase != TimerPhase.Running)
+            {
+                initalUpdate = true;
+                return;
+            }
 
             versionDefinition.UpdateAll(gameProcess);
 
-            if (!hasStateChanged)
-            {
-                bool bPauseTimer = false;
-                if (versionDefinition.isLoadingState != null) bPauseTimer = (bool)versionDefinition.isLoadingState.Current;
-                if (versionDefinition.isMainMenuState != null) bPauseTimer |= (bool)versionDefinition.isMainMenuState.Current;
-                state.IsGameTimePaused = bPauseTimer;
-            }
-
-            if ((versionDefinition.isLoadingState != null && versionDefinition.isLoadingState.Changed) || (versionDefinition.isMainMenuState != null && versionDefinition.isMainMenuState.Changed))
+            if ((versionDefinition.isLoadingState?.Changed ?? false)
+                || (versionDefinition.isMainMenuState?.Changed ?? false)
+                || (versionDefinition.levelSplitsState?.Changed ?? false)
+                || initalUpdate)
             {
                 bool bPauseTimer = false;
                 Debug.WriteLine("State changed...");
 
                 if (versionDefinition.isLoadingState != null)
                 {
-                    Debug.WriteLine(string.Format("{0}ausing timer for loading: {1}", (bool)versionDefinition.isLoadingState.Current ? "P" : "Unp", (bool)versionDefinition.isLoadingState.Current));
-                    bPauseTimer |= (bool)versionDefinition.isLoadingState.Current;
+                    bool pauses = versionDefinition.isLoadingInfo.ShouldPauseOnValue(versionDefinition.isLoadingState.Current);
+                    bPauseTimer |= pauses;
 
+                    int currentValue = versionDefinition.isLoadingState.Current;
+                    int wantedValue = versionDefinition.isLoadingInfo.value;
+                    Debug.WriteLine(string.Format(
+                        "Loading: 0x{0:X} {1} 0x{2:X}, should{3} pause",
+                        currentValue,
+                        currentValue == wantedValue ? "==" : "!=",
+                        wantedValue,
+                        pauses ? "" : "n't"
+                    ));
                 }
 
                 if (versionDefinition.isMainMenuState != null)
                 {
-                    Debug.WriteLine(string.Format("{0}ausing timer for main menu: {1}", (bool)versionDefinition.isMainMenuState.Current ? "P" : "Unp", (bool)versionDefinition.isMainMenuState.Current));
-                    bPauseTimer |= (bool)versionDefinition.isMainMenuState.Current;
-                }
-                state.IsGameTimePaused = bPauseTimer;
-                hasStateChanged = true;
-            }
+                    bool pauses = versionDefinition.isMainMenuInfo.ShouldPauseOnValue(versionDefinition.isMainMenuState.Current);
+                    bPauseTimer |= pauses;
 
+                    int currentValue = versionDefinition.isMainMenuState.Current;
+                    int wantedValue = versionDefinition.isMainMenuInfo.value;
+                    Debug.WriteLine(string.Format(
+                        "Main Menu: 0x{0:X} {1} 0x{2:X}, should{3} pause",
+                        currentValue,
+                        currentValue == wantedValue ? "==" : "!=",
+                        wantedValue,
+                        pauses ? "" : "n't"
+                    ));
+                }
+
+                if (versionDefinition.levelSplitsState != null && settings.AllowLevelSplits)
+                {
+                    int currentLevel = versionDefinition.levelSplitsState.Current;
+                    if (initalUpdate)
+                        lastLevel = currentLevel;
+                    else if (currentLevel != lastLevel
+                             && currentLevel != 0 // Filter out invalid pointers
+                             && currentLevel != versionDefinition.levelSplitsInfo.value) // Filter out main menu
+                    {
+                        Debug.WriteLine($"Level changed from 0x{lastLevel:X} to 0x{currentLevel:X}");
+                        timerModel.Split();
+                        lastLevel = currentLevel;
+                    }
+                }
+
+                state.IsGameTimePaused = bPauseTimer;
+
+                if (initalUpdate && bPauseTimer)
+                    state.SetGameTime(TimeSpan.Zero);
+                initalUpdate = false;
+            }
         }
 
         private bool TryGetGameProcess(LiveSplitState state)
         {
             Process possibleProcess = Process.GetProcessesByName("Borderlands3").FirstOrDefault(p => p.MainModule.FileName.Contains("OakGame") && !pidsToIgnore.Contains(p.Id)); // Find a running version of BL3 (proper) without an improper version
 
-            if (possibleProcess == null) return false; // If we were unable to find a version of BL3, might as well stop now.
+            // If we were unable to find a version of BL3, might as well stop now.
+            if (possibleProcess == null)
+            {
+                settings.SetGameVersion("Not Found");
+                return false;
+            }
 
             string possibleVersion = VersionHelper.GetProductVersion(possibleProcess.MainModule.FileName); // A string for our currently possible version
             string possibleStorefront = VersionHelper.GetStorefront(possibleProcess);
+            settings.SetGameVersion(possibleStorefront + "/" + possibleVersion);
 
             Debug.WriteLine("Possible Version: " + possibleVersion);
 
@@ -96,11 +148,17 @@ namespace Livesplit.Borderlands3
 
     class MemoryDefinition : MemoryWatcherList
     {
-        public MemoryWatcher isMainMenuState { get; } = null;
-        public MemoryWatcher isLoadingState { get; } = null;
+        public MemoryWatcher<int> isMainMenuState { get; } = null;
+        public PointerInfo isMainMenuInfo { get; } = null;
+
+        public MemoryWatcher<int> isLoadingState { get; } = null;
+        public PointerInfo isLoadingInfo { get; } = null;
+
+        public MemoryWatcher<int> levelSplitsState { get; } = null;
+        public PointerInfo levelSplitsInfo { get; } = null;
 
         public bool bKnownVersion;
-        public Dictionary<string, DeepPointer> pointers = new Dictionary<string, DeepPointer>();
+        public Dictionary<string, PointerInfo> pointers = new Dictionary<string, PointerInfo>();
         public MemoryDefinition(string gameVersion, string gameStorefront)
         {
             bKnownVersion = true;
@@ -116,10 +174,22 @@ namespace Livesplit.Borderlands3
             }
 
             if (pointers.ContainsKey("loading"))
-                isLoadingState = new MemoryWatcher<bool>(pointers["loading"]);
-            if (pointers.ContainsKey("mainMenu"))
-                isMainMenuState = new MemoryWatcher<bool>(pointers["mainMenu"]);
+            {
+                isLoadingInfo = pointers["loading"];
+                isLoadingState = new MemoryWatcher<int>(isLoadingInfo.ptr);
+            }
 
+            if (pointers.ContainsKey("mainMenu"))
+            {
+                isMainMenuInfo = pointers["mainMenu"];
+                isMainMenuState = new MemoryWatcher<int>(isMainMenuInfo.ptr);
+            }
+
+            if (pointers.ContainsKey("levelSplits"))
+            {
+                levelSplitsInfo = pointers["levelSplits"];
+                levelSplitsState = new MemoryWatcher<int>(levelSplitsInfo.ptr);
+            }
 
             this.AddRange(this.GetType().GetProperties().Where(p => !p.GetIndexParameters().Any()).Select(p => p.GetValue(this, null) as MemoryWatcher).Where(p => p != null));
         }
