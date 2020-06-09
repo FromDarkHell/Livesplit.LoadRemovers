@@ -1,4 +1,12 @@
 <updates>
+  <update version="1.5">
+    <files>
+      <file path="Components/Livesplit.Borderlands3.dll" status="changed"/>
+    </files>
+    <changelog>
+      <change>Fixed that manually pausing the timer would reset game time (by apple1417)</change>
+    </changelog>
+  </update>
   <update version="1.4">
     <files>
       <file path="Components/Livesplit.Borderlands3.dll" status="changed"/>

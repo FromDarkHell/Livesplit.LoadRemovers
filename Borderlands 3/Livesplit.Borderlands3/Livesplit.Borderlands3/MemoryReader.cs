@@ -100,8 +100,13 @@ namespace Livesplit.Borderlands3
 
                 state.IsGameTimePaused = bPauseTimer;
 
-                if (initalUpdate && bPauseTimer)
-                    state.SetGameTime(TimeSpan.Zero);
+                if (initalUpdate)
+                {
+                    // We also get here if you just unpaused, so only do this if not initalized
+                    if (bPauseTimer && !state.IsGameTimeInitialized)
+                        state.SetGameTime(TimeSpan.Zero);
+                    state.IsGameTimeInitialized = true;
+                }
                 initalUpdate = false;
             }
         }
