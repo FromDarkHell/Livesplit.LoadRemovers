@@ -35,6 +35,25 @@
             <offsets />
          </mainMenu>
       </OAK-PATCHDIESEL-178>
+      
+      <!-- 1.0.10 -->
+      <OAK-PATCHDIESEL0-103>
+         <loading>
+            <base>Borderlands3.exe+0x069D0988</base>
+            <offsets>
+               <element>0x18</element>
+               <element>0x170</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x6218080</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="equal">0x1251</value>
+         </mainMenu>
+      </OAK-PATCHDIESEL0-103>
    </egs>
 
    <steam>
