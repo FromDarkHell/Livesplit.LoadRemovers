@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PointersRoot pointerVersion="1.4">
+<PointersRoot pointerVersion="1.5">
    <egs>
-      <!-- 1.0 -->
+
       <OAK-PADDIESEL1-39>
          <loading>
             <base>Borderlands3.exe+0x065E2B60</base>
@@ -35,6 +35,26 @@
             <offsets />
          </mainMenu>
       </OAK-PATCHDIESEL-178>
+      
+      
+      <OAK-PATCHDIESEL0-103>
+         <loading>
+            <base>Borderlands3.exe+0x069D0988</base>
+            <offsets>
+               <element>0x18</element>
+               <element>0x170</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x6218080</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="equal">0x1251</value>
+         </mainMenu>
+      </OAK-PATCHDIESEL0-103>
+
    </egs>
 
    <steam>
