@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PointersRoot pointerVersion="1.5">
+<PointersRoot pointerVersion="1.6">
    <egs>
 
       <OAK-PADDIESEL1-39>
@@ -59,7 +59,7 @@
 
    <steam>
       <!--- https://gist.github.com/apple1417/111a6d7f3a4b786d4752e3b458617e26#simplified-guide -->
-      <OAK-PATCHWIN64-49>
+      <OAK-PATCHWIN64-49><!-- Crossplay -->
          <loading>
             <base>Borderlands3.exe+0x066BEB40</base>
             <offsets>
@@ -85,7 +85,7 @@
          </levelSplits>
       </OAK-PATCHWIN64-49>
 
-      <OAK-PATCHWIN641-32>
+      <OAK-PATCHWIN641-32><!-- Wedding DLC -->
          <loading>
             <base>Borderlands3.exe+0x0678BE00</base>
             <offsets>
@@ -111,7 +111,7 @@
          </levelSplits>
       </OAK-PATCHWIN641-32>
 
-      <OAK-PATCHWIN64-79>
+      <OAK-PATCHWIN64-79><!-- Cartel -->
          <loading>
             <base>Borderlands3.exe+0x0683FDC0</base>
             <offsets>
@@ -137,7 +137,7 @@
          </levelSplits>
       </OAK-PATCHWIN64-79>
 
-      <OAK-PATCHWIN641-63>
+      <OAK-PATCHWIN641-63><!-- Guardian Takedown -->
          <loading>
             <base>Borderlands3.exe+0x06870BE0</base>
             <offsets>
@@ -163,7 +163,7 @@
          </levelSplits>
       </OAK-PATCHWIN641-63>
       
-      <OAK-PATCHWIN640-59>
+      <OAK-PATCHWIN640-59><!-- Bounty -->
          <loading>
             <base>Borderlands3.exe+0x0687A650</base>
             <offsets>
@@ -188,6 +188,32 @@
             <value activeWhen="levelNot">0x124F</value>
          </levelSplits>
       </OAK-PATCHWIN640-59>
+      
+      <OAK-PATCHWIN64-123><!-- Drop changes -->
+         <loading>
+            <base>Borderlands3.exe+0x06882AE0</base>
+            <offsets>
+               <element>0xF8</element>
+               <element>0x9DC</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x064E2FC0</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="equal">0x124F</value>
+         </mainMenu>
+         <levelSplits>
+            <base>Borderlands3.exe+0x064E2FC0</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="levelNot">0x124F</value>
+         </levelSplits>
+      </OAK-PATCHWIN64-123>
    </steam>
 
 </PointersRoot>
