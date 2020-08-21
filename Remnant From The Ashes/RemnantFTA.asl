@@ -4,8 +4,8 @@
 
 state("Remnant-Win64-Shipping", "EGS") // Pointers by FromDarkHell
 {
-	bool isLoading  : 0x03351210, 0x0;
-	bool isMainMenu : 0x034AA558, 0x7F0, 0x5B4;
+	bool isLoading  : 0x03351208, 0x38;
+	bool isMainMenu : 0x03576220, 0x30, 0x834;
 }
 
  
