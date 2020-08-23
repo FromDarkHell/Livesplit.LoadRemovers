@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PointersRoot pointerVersion="1.6">
+<PointersRoot pointerVersion="1.7">
    <egs>
-
-      <OAK-PADDIESEL1-39>
+      <OAK-PADDIESEL1-39> <!-- Initial Patch -->
          <loading>
             <base>Borderlands3.exe+0x065E2B60</base>
             <offsets>
@@ -12,7 +11,7 @@
          <mainMenu />
       </OAK-PADDIESEL1-39>
 
-      <OAK-PATCHDIESEL2-32>
+      <OAK-PATCHDIESEL2-32> <!-- https://borderlands.com/en-US/news/2019-09-26-borderlands-3-patch-sept-26/ -->
          <loading>
             <base>Borderlands3.exe+0x63CEA98</base>
             <offsets />
@@ -22,22 +21,8 @@
             <offsets/>
          </mainMenu>
       </OAK-PATCHDIESEL2-32>
-
-      <OAK-PATCHDIESEL-178>
-         <loading>
-            <base>Borderlands3.exe+0x06A70880</base>
-            <offsets>
-               <element>0xD0</element>
-            </offsets>
-         </loading>
-         <mainMenu>
-            <base>Borderlands3.exe+0x6AD5A48</base>
-            <offsets />
-         </mainMenu>
-      </OAK-PATCHDIESEL-178>
-      
-      
-      <OAK-PATCHDIESEL0-103>
+         
+      <OAK-PATCHDIESEL0-103> <!-- Bloody Harvest -->
          <loading>
             <base>Borderlands3.exe+0x069D0988</base>
             <offsets>
@@ -55,6 +40,40 @@
          </mainMenu>
       </OAK-PATCHDIESEL0-103>
 
+      <OAK-PATCHDIESEL-178> <!-- Cartel -->
+         <loading>
+            <base>Borderlands3.exe+0x06A70880</base>
+            <offsets>
+               <element>0xD4</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x06ACE480</base>
+            <offsets>
+               <element>0x18</element>
+               <element>0x3F0</element>
+               <element>0xAF0</element>
+            </offsets>
+         </mainMenu>
+      </OAK-PATCHDIESEL-178>
+
+      <OAK-PATCHDIESEL-222> <!-- Drop Changes -->
+         <loading>
+            <base>Borderlands3.exe+06880848</base>
+            <offsets>
+               <element>0xF8</element>
+               <element>0x80C</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+068C3168</base>
+            <offsets>
+               <element>0x8</element>
+               <element>0xEB0</element>
+               <element>0x5A0</element>
+            </offsets>
+         </mainMenu>
+      </OAK-PATCHDIESEL-222>
    </egs>
 
    <steam>
@@ -189,7 +208,7 @@
          </levelSplits>
       </OAK-PATCHWIN640-59>
       
-      <OAK-PATCHWIN64-123><!-- Drop changes -->
+      <OAK-PATCHWIN64-123><!-- Drop Changes -->
          <loading>
             <base>Borderlands3.exe+0x06882AE0</base>
             <offsets>
