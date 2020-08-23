@@ -59,11 +59,9 @@
 
       <OAK-PATCHDIESEL-222> <!-- Drop Changes -->
          <loading>
-            <base>Borderlands3.exe+0x06B22A40</base>
+            <base>Borderlands3.exe+1C861F5C</base>
             <offsets>
-               <element>0x20</element>
-               <element>0xF8</element>
-               <element>0x9DC</element>
+               <element>0x8EC</element>
             </offsets>
          </loading>
          <mainMenu>
