@@ -1,4 +1,4 @@
-// Remnant From The Ashes Autosplitter 1.1
+// Remnant From The Ashes Autosplitter 1.1.1
 // Created by FromDarkHell
 
 // == Version States ==
@@ -7,17 +7,25 @@
 state("Remnant-Win64-Shipping") {}
 
 // == Game Version: 248,851DP ==
-state("Remnant-Win64-Shipping", "EGS-248851DP")
+state("Remnant-Win64-Shipping", "EGS-248851")
 {
 	bool isLoading  : 0x033511F0, 0x7C;
 	bool isMainMenu : 0x03576220, 0x30, 0x834;
 }
 
-state("Remnant-Win64-Shipping", "STEAM-248851DP")
+state("Remnant-Win64-Shipping", "STEAM-248851")
 {
 	bool isLoading  : 0x034A78E0, 0x28, 0x3E8, 0x10, 0x2B8, 0xF0, 0x588, 0x500;
 	bool isMainMenu : 0x03576190, 0xF8, 0x408, 0x238, 0x10;
 }
+
+// == Game Version: 249,276DP ==
+state("Remnant-Win64-Shipping", "EGS-249276")
+{
+	bool isLoading  : 0x033512C8, 0x38;
+	bool isMainMenu : 0x031CAB60, 0x830, 0x70, 0xA0, 0x0, 0x80, 0x40, 0xC8;
+}
+
 // =============================
 
 startup {
@@ -29,8 +37,13 @@ startup {
 	}
 
 	// NOTE: IF YOU'RE GOING TO ADD A NEW VERSION, PUT THE HASH IN THIS DICTIONARY!
+	// You'll also want to add the steam version of the hash if you've got the access to it
+
 	vars.hashToVersion = new Dictionary<string, string> {
-		{ "E9A7DB969B885D91CCD13AD61DDF7390", "248851DP" }
+		// == Epic Games ==
+		{ "E9A7DB969B885D91CCD13AD61DDF7390", "248851" },
+		{ "22FDCA89829A39D637E3316C4DC40D6C", "249276" }
+		// == Steam ==
 	};
 
 }
@@ -40,8 +53,7 @@ init
 	vars.isLoading = false;
 	vars.gameModule = modules.First();
 	// Default Value is something like: `K:\RemnantFromTheAshes\Remnant\Binaries\Win64\Remnant-Win64-Shipping.exe`
-	// Technically you can (easily) have an Epic install without the .egstore due to the way Epic launches their games
-	// But y'know *meh*
+	// Technically you can (easily) have an Epic install without the .egstore due to the way Epic launches their games but y'know *meh*
 	vars.gameStorefront = Directory.Exists(vars.gameModule.FileName + "/../../../../.egstore") ? "EGS" : "STEAM";
 	
 	// Creating a hash of the file seems to be a relatively *ok* way of detecting the version.
@@ -65,11 +77,9 @@ init
 	print("[Remnant ASL]: ASL Version: " + version.ToString());
 }
 
-
 update {
 	vars.isLoading = current.isLoading || current.isMainMenu;
 }
-
 
 isLoading
 {
