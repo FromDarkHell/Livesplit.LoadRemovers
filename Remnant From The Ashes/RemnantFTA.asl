@@ -23,7 +23,7 @@ state("Remnant-Win64-Shipping", "STEAM-248851")
 state("Remnant-Win64-Shipping", "EGS-249276")
 {
 	bool isLoading  : 0x033512C8, 0x38;
-	bool isMainMenu : 0x031CAB60, 0x830, 0x70, 0xA0, 0x0, 0x80, 0x40, 0xC8;
+	bool isMainMenu : 0x03576280, 0xF8, 0x208, 0x238, 0x10;
 }
 
 // =============================
