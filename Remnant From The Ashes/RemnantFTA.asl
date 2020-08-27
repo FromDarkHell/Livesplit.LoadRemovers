@@ -1,4 +1,4 @@
-// Remnant From The Ashes Autosplitter 1.1.1
+// Remnant From The Ashes Autosplitter 1.1.2
 // Created by FromDarkHell
 
 // == Version States ==
@@ -23,7 +23,7 @@ state("Remnant-Win64-Shipping", "STEAM-248851")
 state("Remnant-Win64-Shipping", "EGS-249276")
 {
 	bool isLoading  : 0x033512C8, 0x38;
-	bool isMainMenu : 0x03576280, 0xF8, 0x208, 0x238, 0x10;
+	bool isMainMenu : 0x035A6F58, 0x30, 0x148, 0x20, 0x30, 0xA8, 0x90, 0x238, 0x10;
 }
 
 // =============================
