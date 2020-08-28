@@ -22,8 +22,8 @@ state("Remnant-Win64-Shipping", "STEAM-248851")
 // == Game Version: 249,276DP ==
 state("Remnant-Win64-Shipping", "EGS-249276")
 {
-	bool isLoading  : 0x033512C8, 0x38;
-	bool isMainMenu : 0x035A6F58, 0x30, 0x148, 0x20, 0x30, 0xA8, 0x90, 0x238, 0x10;
+	bool isLoading  : 0x033512D0, 0x4;
+	bool isMainMenu : 0x035B2030, 0x140, 0xC68;
 }
 
 // =============================
