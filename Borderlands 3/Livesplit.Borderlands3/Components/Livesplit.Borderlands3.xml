@@ -255,6 +255,32 @@
             <value activeWhen="levelNot">0x124F</value>
          </levelSplits>
       </OAK-PATCHWIN64-123>
+      
+      <OAK-PATCHWIN641-118><!-- Krieg DLC -->
+         <loading>
+            <base>Borderlands3.exe+0x0688E370</base>
+            <offsets>
+               <element>0xF8</element>
+               <element>0x9DC</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x064EE7A0</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="equal">0x1250</value>
+         </mainMenu>
+         <levelSplits>
+            <base>Borderlands3.exe+0x064EE7A0</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="levelNot">0x1250</value>
+         </levelSplits>
+      </OAK-PATCHWIN641-118>
    </steam>
 
 </PointersRoot>
