@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PointersRoot pointerVersion="1.9">
+<PointersRoot pointerVersion="1.10">
    <egs>
       <OAK-PADDIESEL1-39> <!-- Initial Patch -->
          <loading>
@@ -59,7 +59,7 @@
 
       <OAK-PATCHDIESEL-222> <!-- Drop Changes -->
          <loading>
-            <base>Borderlands3.exe+1C861F5C</base>
+            <base>Borderlands3.exe+0x1C861F5C</base>
             <offsets>
                <element>0x8EC</element>
             </offsets>
@@ -73,6 +73,29 @@
             </offsets>
          </mainMenu>
       </OAK-PATCHDIESEL-222>
+
+      <OAK-PATCHDIESEL1-191> <!-- DLC4 Release -->
+         <loading>
+            <base>Borderlands3.exe+0x062050F8</base>
+            <offsets>
+               <element>0x1CC</element>
+               <element>0xD28</element>
+               <element>0xA24</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x068CE9E8</base>
+            <offsets>
+               <element>0x8</element>
+               <element>0xB70</element>
+               <element>0x180</element>
+               <element>0x270</element>
+               <element>0x230</element>
+               <element>0x5A0</element>
+            </offsets>
+         </mainMenu>
+      </OAK-PATCHDIESEL1-191>
+
    </egs>
 
    <steam>
