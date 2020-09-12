@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PointersRoot pointerVersion="1.11">
+<PointersRoot pointerVersion="1.12">
    <egs>
       <OAK-PADDIESEL1-39> <!-- Initial Patch -->
          <loading>
@@ -76,23 +76,25 @@
 
       <OAK-PATCHDIESEL1-191> <!-- DLC4 Release -->
          <loading>
-            <base>Borderlands3.exe+0x062050F8</base>
-            <offsets>
-               <element>0x1CC</element>
-               <element>0xD28</element>
-               <element>0xA24</element>
-            </offsets>
-         </loading>
-         <mainMenu>
-            <base>Borderlands3.exe+0x068CE9E8</base>
+            <base>Borderlands3.exe+0x068ABDB8</base>
             <offsets>
                <element>0x8</element>
-               <element>0xB70</element>
-               <element>0x180</element>
-               <element>0x270</element>
-               <element>0x230</element>
-               <element>0x5A0</element>
+               <element>0xB48</element>
             </offsets>
+            <value activeWhen="equal">0x8</value>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x05D4EA18</base>
+            <offsets>
+               <element>0xE8</element>
+               <element>0xCB4</element>
+               <element>0xC88</element>
+               <element>0x888</element>
+               <element>0x150</element>
+               <element>0x0</element>
+               <element>0x208</element>
+            </offsets>
+            <value activeWhen="equal">0x1</value>
          </mainMenu>
       </OAK-PATCHDIESEL1-191>
 
