@@ -26,15 +26,22 @@ state("Remnant-Win64-Shipping", "EGS-249276")
 	bool isMainMenu : 0x035B2030, 0x140, 0xC68;
 }
 
+// == Game Version: 250,802DP ==
+state("Remnant-Win64-Shipping", "EGS-250802") {
+	bool isLoading  : 0x03352310, 0x0;
+	bool isMainMenu : 0x031CBBC0, 0x7B0, 0x68, 0x98, 0x80, 0x40, 0xC8;
+}
 // =============================
 
 startup {
 
+	/*
 	if(timer.CurrentTimingMethod == TimingMethod.RealTime)
 	{
 		var timingMessage = MessageBox.Show("This game uses Game Time (time without loads) as the main timing method.\nLiveSplit is currently set to show Real Time (time INCLUDING loads).\nWould you like the timing method to be set to Game Time for you?", "Remnant From The Ashes ASL | LiveSplit", MessageBoxButtons.YesNo,MessageBoxIcon.Question);
 		if (timingMessage == DialogResult.Yes) timer.CurrentTimingMethod = TimingMethod.GameTime;
 	}
+	*/
 
 	// NOTE: IF YOU'RE GOING TO ADD A NEW VERSION, PUT THE HASH IN THIS DICTIONARY!
 	// You'll also want to add the steam version of the hash if you've got the access to it
@@ -42,7 +49,8 @@ startup {
 	vars.hashToVersion = new Dictionary<string, string> {
 		// == Epic Games ==
 		{ "E9A7DB969B885D91CCD13AD61DDF7390", "248851" },
-		{ "22FDCA89829A39D637E3316C4DC40D6C", "249276" }
+		{ "22FDCA89829A39D637E3316C4DC40D6C", "249276" },
+		{ "D24A54AD8E92573D7692400CC552ABB9", "250802" }
 		// == Steam ==
 	};
 
