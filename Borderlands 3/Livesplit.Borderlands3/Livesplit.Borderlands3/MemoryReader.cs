@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using LiveSplit.ComponentUtil;
 using LiveSplit.Model;
+using LiveSplit.UI.Components;
 
 namespace Livesplit.Borderlands3
 {
@@ -30,16 +31,14 @@ namespace Livesplit.Borderlands3
 
         public void Update(LiveSplitState state)
         {
+            CounterComponent sqCounter = GetSQCounter(state);
+
             // Hopefully get our process from the memory, as well as initialize our MemoryDefinition for reading
             if (gameProcess == null || gameProcess.HasExited || versionDefinition == null)
                 if (!this.TryGetGameProcess(state)) return;
 
-            // No need to evaluate anything if not running, paused, or ended
-            if (state.CurrentPhase != TimerPhase.Running)
-            {
-                initalUpdate = true;
-                return;
-            }
+            // No need to evaluate anything if not running
+            if (state.CurrentPhase != TimerPhase.Running) return;
 
             versionDefinition.UpdateAll(gameProcess);
 
@@ -83,18 +82,31 @@ namespace Livesplit.Borderlands3
                     ));
                 }
 
-                if (versionDefinition.levelSplitsState != null && settings.AllowLevelSplits)
+                if (versionDefinition.levelSplitsState != null)
                 {
                     int currentLevel = versionDefinition.levelSplitsState.Current;
+                    // lastLevel will not update to the main menu, so this might be different
+                    int oldLevel = versionDefinition.levelSplitsState.Old;
+                    int mainMenu = versionDefinition.levelSplitsInfo.value;
+
                     if (initalUpdate)
-                        lastLevel = currentLevel;
-                    else if (currentLevel != lastLevel
-                             && currentLevel != 0 // Filter out invalid pointers
-                             && currentLevel != versionDefinition.levelSplitsInfo.value) // Filter out main menu
                     {
-                        Debug.WriteLine($"Level changed from 0x{lastLevel:X} to 0x{currentLevel:X}");
-                        timerModel.Split();
                         lastLevel = currentLevel;
+                    }
+                    else if (currentLevel != 0 && currentLevel != oldLevel) // Filter out invalid pointers and unchanged values
+                    {
+                        // If you switched to the main menu, add a sq
+                        if (currentLevel == mainMenu)
+                        {
+                            sqCounter?.Counter?.Increment();
+                        }
+                        // If you switched to a different level than the stored last level, split
+                        else if (currentLevel != lastLevel && settings.AllowLevelSplits)
+                        {
+                            Debug.WriteLine($"Level changed from 0x{lastLevel:X} to 0x{currentLevel:X}");
+                            timerModel.Split();
+                            lastLevel = currentLevel;
+                        }
                     }
                 }
 
@@ -102,7 +114,6 @@ namespace Livesplit.Borderlands3
 
                 if (initalUpdate)
                 {
-                    // We also get here if you just unpaused, so only do this if not initalized
                     if (bPauseTimer && !state.IsGameTimeInitialized)
                         state.SetGameTime(TimeSpan.Zero);
                     state.IsGameTimeInitialized = true;
@@ -147,6 +158,21 @@ namespace Livesplit.Borderlands3
 
             state.IsGameTimeInitialized = true;
             return true;
+        }
+
+        private CounterComponent GetSQCounter(LiveSplitState state)
+        {
+            if (!settings.AllowSQCounter) return null;
+
+            return (CounterComponent) state.Layout.Components.Where(
+                c => c is CounterComponent ctr && ctr.Settings.CounterText == settings.SQCounterText
+            ).FirstOrDefault();
+        }
+
+        public void OnTimerStart(object sender, EventArgs e)
+        {
+            initalUpdate = true;
+            GetSQCounter((LiveSplitState)sender)?.Counter?.Reset();
         }
     }
 
