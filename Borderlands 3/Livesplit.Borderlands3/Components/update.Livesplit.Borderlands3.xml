@@ -1,4 +1,12 @@
 <updates>
+  <update version="1.6">
+    <files>
+      <file path="Components/Livesplit.Borderlands3.dll" status="changed"/>
+    </files>
+    <changelog>
+      <change>Added an option to automatically count SQs, for all versions with level change autosplitting (by apple1417)</change>
+    </changelog>
+  </update>
   <update version="1.5">
     <files>
       <file path="Components/Livesplit.Borderlands3.dll" status="changed"/>
