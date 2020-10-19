@@ -5,7 +5,6 @@ using System.Linq;
 using System.Windows.Forms;
 using LiveSplit.ComponentUtil;
 using LiveSplit.Model;
-using LiveSplit.UI.Components;
 
 namespace Livesplit.Borderlands3
 {
@@ -31,8 +30,6 @@ namespace Livesplit.Borderlands3
 
         public void Update(LiveSplitState state)
         {
-            CounterComponent sqCounter = GetSQCounter(state);
-
             // Hopefully get our process from the memory, as well as initialize our MemoryDefinition for reading
             if (gameProcess == null || gameProcess.HasExited || versionDefinition == null)
                 if (!this.TryGetGameProcess(state)) return;
@@ -98,7 +95,7 @@ namespace Livesplit.Borderlands3
                         // If you switched to the main menu, add a sq
                         if (currentLevel == mainMenu)
                         {
-                            sqCounter?.Counter?.Increment();
+                            CounterHandler.Increment(state);
                         }
                         // If you switched to a different level than the stored last level, split
                         else if (currentLevel != lastLevel && settings.AllowLevelSplits)
@@ -135,11 +132,13 @@ namespace Livesplit.Borderlands3
 
             string possibleVersion = VersionHelper.GetProductVersion(possibleProcess.MainModule.FileName); // A string for our currently possible version
             string possibleStorefront = VersionHelper.GetStorefront(possibleProcess);
-            settings.SetGameVersion(possibleStorefront + "/" + possibleVersion);
 
             Debug.WriteLine("Possible Version: " + possibleVersion);
 
             MemoryDefinition possibleDef = new MemoryDefinition(possibleVersion, possibleStorefront);
+
+            settings.SetGameVersion(possibleStorefront + "/" + possibleVersion);
+            settings.SetSupportsLevelSplits(possibleDef.levelSplitsState != null);
 
             if (!possibleDef.bKnownVersion || possibleDef == null)
             {
@@ -160,19 +159,10 @@ namespace Livesplit.Borderlands3
             return true;
         }
 
-        private CounterComponent GetSQCounter(LiveSplitState state)
-        {
-            if (!settings.AllowSQCounter) return null;
-
-            return (CounterComponent) state.Layout.Components.Where(
-                c => c is CounterComponent ctr && ctr.Settings.CounterText == settings.SQCounterText
-            ).FirstOrDefault();
-        }
-
         public void OnTimerStart(object sender, EventArgs e)
         {
             initalUpdate = true;
-            GetSQCounter((LiveSplitState)sender)?.Counter?.Reset();
+            CounterHandler.Reset((LiveSplitState)sender);
         }
     }
 

@@ -40,6 +40,8 @@ namespace Livesplit.Borderlands3
             settings = new Borderlands3Settings();
             memReader = new MemoryReader(timerModel, settings);
 
+            CounterHandler.Init(settings);
+
             state.OnStart += memReader.OnTimerStart;
         }
 

@@ -32,13 +32,13 @@
       this.levelSplitsCheckbox = new System.Windows.Forms.CheckBox();
       this.versionLabel = new System.Windows.Forms.Label();
       this.flowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
-      this.sqCounterCheckbox = new System.Windows.Forms.CheckBox();
-      this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+      this.sqCounterTable = new System.Windows.Forms.TableLayoutPanel();
       this.sqCounterTextBox = new System.Windows.Forms.TextBox();
+      this.sqCounterCheckbox = new System.Windows.Forms.CheckBox();
       this.dividerLabel = new System.Windows.Forms.Label();
-      this.sqCounterTextTooltip = new System.Windows.Forms.ToolTip(this.components);
+      this.sqCounterTooltip = new System.Windows.Forms.ToolTip(this.components);
       this.flowLayoutPanel.SuspendLayout();
-      this.tableLayoutPanel1.SuspendLayout();
+      this.sqCounterTable.SuspendLayout();
       this.SuspendLayout();
       // 
       // levelSplitsCheckbox
@@ -66,7 +66,7 @@
       this.flowLayoutPanel.AutoSize = true;
       this.flowLayoutPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       this.flowLayoutPanel.Controls.Add(this.levelSplitsCheckbox);
-      this.flowLayoutPanel.Controls.Add(this.tableLayoutPanel1);
+      this.flowLayoutPanel.Controls.Add(this.sqCounterTable);
       this.flowLayoutPanel.Controls.Add(this.dividerLabel);
       this.flowLayoutPanel.Controls.Add(this.versionLabel);
       this.flowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -77,6 +77,32 @@
       this.flowLayoutPanel.Padding = new System.Windows.Forms.Padding(0, 0, 0, 3);
       this.flowLayoutPanel.Size = new System.Drawing.Size(183, 77);
       this.flowLayoutPanel.TabIndex = 4;
+      // 
+      // sqCounterTable
+      // 
+      this.sqCounterTable.AutoSize = true;
+      this.sqCounterTable.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+      this.sqCounterTable.ColumnCount = 2;
+      this.sqCounterTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.sqCounterTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+      this.sqCounterTable.Controls.Add(this.sqCounterTextBox, 1, 0);
+      this.sqCounterTable.Controls.Add(this.sqCounterCheckbox, 0, 0);
+      this.sqCounterTable.Location = new System.Drawing.Point(0, 20);
+      this.sqCounterTable.Margin = new System.Windows.Forms.Padding(0);
+      this.sqCounterTable.Name = "sqCounterTable";
+      this.sqCounterTable.RowCount = 1;
+      this.sqCounterTable.RowStyles.Add(new System.Windows.Forms.RowStyle());
+      this.sqCounterTable.Size = new System.Drawing.Size(183, 26);
+      this.sqCounterTable.TabIndex = 8;
+      // 
+      // sqCounterTextBox
+      // 
+      this.sqCounterTextBox.Enabled = false;
+      this.sqCounterTextBox.Location = new System.Drawing.Point(80, 3);
+      this.sqCounterTextBox.Name = "sqCounterTextBox";
+      this.sqCounterTextBox.Size = new System.Drawing.Size(100, 20);
+      this.sqCounterTextBox.TabIndex = 1;
+      this.sqCounterTextBox.Text = "SQs:";
       // 
       // sqCounterCheckbox
       // 
@@ -89,33 +115,6 @@
       this.sqCounterCheckbox.Text = "Count SQs";
       this.sqCounterCheckbox.UseVisualStyleBackColor = true;
       this.sqCounterCheckbox.CheckedChanged += new System.EventHandler(this.sqCounterCheckbox_CheckedChanged);
-      // 
-      // tableLayoutPanel1
-      // 
-      this.tableLayoutPanel1.AutoSize = true;
-      this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-      this.tableLayoutPanel1.ColumnCount = 2;
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-      this.tableLayoutPanel1.Controls.Add(this.sqCounterTextBox, 1, 0);
-      this.tableLayoutPanel1.Controls.Add(this.sqCounterCheckbox, 0, 0);
-      this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 20);
-      this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
-      this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-      this.tableLayoutPanel1.RowCount = 1;
-      this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-      this.tableLayoutPanel1.Size = new System.Drawing.Size(183, 26);
-      this.tableLayoutPanel1.TabIndex = 8;
-      // 
-      // sqCounterTextBox
-      // 
-      this.sqCounterTextBox.Enabled = false;
-      this.sqCounterTextBox.Location = new System.Drawing.Point(80, 3);
-      this.sqCounterTextBox.Name = "sqCounterTextBox";
-      this.sqCounterTextBox.Size = new System.Drawing.Size(100, 20);
-      this.sqCounterTextBox.TabIndex = 1;
-      this.sqCounterTextBox.Text = "SQs:";
-      this.sqCounterTextTooltip.SetToolTip(this.sqCounterTextBox, "The first Counter Component with this same Counter Text will be selected.");
       // 
       // dividerLabel
       // 
@@ -140,8 +139,8 @@
       this.Size = new System.Drawing.Size(183, 77);
       this.flowLayoutPanel.ResumeLayout(false);
       this.flowLayoutPanel.PerformLayout();
-      this.tableLayoutPanel1.ResumeLayout(false);
-      this.tableLayoutPanel1.PerformLayout();
+      this.sqCounterTable.ResumeLayout(false);
+      this.sqCounterTable.PerformLayout();
       this.ResumeLayout(false);
       this.PerformLayout();
 
@@ -154,8 +153,8 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel;
         private System.Windows.Forms.Label dividerLabel;
         private System.Windows.Forms.CheckBox sqCounterCheckbox;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.TableLayoutPanel sqCounterTable;
         private System.Windows.Forms.TextBox sqCounterTextBox;
-        private System.Windows.Forms.ToolTip sqCounterTextTooltip;
+        private System.Windows.Forms.ToolTip sqCounterTooltip;
     }
 }
