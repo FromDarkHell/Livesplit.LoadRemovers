@@ -14,6 +14,11 @@ namespace Livesplit.Borderlands3
 {
     public partial class Borderlands3Settings : UserControl
     {
+        private const string sqCounterTooltipText = "Requires the optional Counter component to be installed. The first Counter with this same Counter Text will be used.";
+
+        private bool supportsLevelSplits = true;
+        private bool supportsCounter = true;
+
         public Borderlands3Settings()
         {
             InitializeComponent();
@@ -21,6 +26,10 @@ namespace Livesplit.Borderlands3
             AllowLevelSplits = AllowLevelSplits_Default;
             AllowSQCounter = AllowSQCounter_Default;
             SQCounterText = SQCounterText_Default;
+
+            sqCounterTooltip.SetToolTip(sqCounterCheckbox, sqCounterTooltipText);
+            sqCounterTooltip.SetToolTip(sqCounterTextBox, sqCounterTooltipText);
+            sqCounterTooltip.SetToolTip(sqCounterTable, sqCounterTooltipText);
         }
 
         public const bool AllowLevelSplits_Default = false;
@@ -84,6 +93,25 @@ namespace Livesplit.Borderlands3
         }
 
         public void SetGameVersion(string version) => versionLabel.Text = "Game Version: " + version;
+
+        public void SetSupportsLevelSplits(bool supportsLevelSplits)
+        {
+            this.supportsLevelSplits = supportsLevelSplits;
+            UpdateSupportedFields();
+        }
+
+        public void SetSupportsCounter(bool supportsCounter)
+        {
+            this.supportsCounter = supportsCounter;
+            UpdateSupportedFields();
+        }
+
+        private void UpdateSupportedFields()
+        {
+            levelSplitsCheckbox.Enabled = supportsLevelSplits;
+            sqCounterCheckbox.Enabled = supportsLevelSplits && supportsCounter;
+            sqCounterTextBox.Enabled = supportsLevelSplits && supportsCounter && sqCounterCheckbox.Checked;
+        }
 
         private void sqCounterCheckbox_CheckedChanged(object sender, EventArgs e)
         {

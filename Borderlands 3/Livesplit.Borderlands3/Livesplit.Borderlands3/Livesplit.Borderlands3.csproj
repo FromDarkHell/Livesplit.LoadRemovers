@@ -36,9 +36,6 @@
     <Reference Include="LiveSplit.Core">
       <HintPath>G:\Backup\Livesplit 1.6\LiveSplit.Core.dll</HintPath>
     </Reference>
-    <Reference Include="LiveSplit.Counter">
-      <HintPath>G:\Backup\Livesplit 1.6\LiveSplit.Counter.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
