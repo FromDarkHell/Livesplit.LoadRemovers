@@ -34,12 +34,8 @@ namespace Livesplit.Borderlands3
             if (gameProcess == null || gameProcess.HasExited || versionDefinition == null)
                 if (!this.TryGetGameProcess(state)) return;
 
-            // No need to evaluate anything if not running, paused, or ended
-            if (state.CurrentPhase != TimerPhase.Running)
-            {
-                initalUpdate = true;
-                return;
-            }
+            // No need to evaluate anything if not running
+            if (state.CurrentPhase != TimerPhase.Running) return;
 
             versionDefinition.UpdateAll(gameProcess);
 
@@ -83,18 +79,31 @@ namespace Livesplit.Borderlands3
                     ));
                 }
 
-                if (versionDefinition.levelSplitsState != null && settings.AllowLevelSplits)
+                if (versionDefinition.levelSplitsState != null)
                 {
                     int currentLevel = versionDefinition.levelSplitsState.Current;
+                    // lastLevel will not update to the main menu, so this might be different
+                    int oldLevel = versionDefinition.levelSplitsState.Old;
+                    int mainMenu = versionDefinition.levelSplitsInfo.value;
+
                     if (initalUpdate)
-                        lastLevel = currentLevel;
-                    else if (currentLevel != lastLevel
-                             && currentLevel != 0 // Filter out invalid pointers
-                             && currentLevel != versionDefinition.levelSplitsInfo.value) // Filter out main menu
                     {
-                        Debug.WriteLine($"Level changed from 0x{lastLevel:X} to 0x{currentLevel:X}");
-                        timerModel.Split();
                         lastLevel = currentLevel;
+                    }
+                    else if (currentLevel != 0 && currentLevel != oldLevel) // Filter out invalid pointers and unchanged values
+                    {
+                        // If you switched to the main menu, add a sq
+                        if (currentLevel == mainMenu)
+                        {
+                            CounterHandler.Increment(state);
+                        }
+                        // If you switched to a different level than the stored last level, split
+                        else if (currentLevel != lastLevel && settings.AllowLevelSplits)
+                        {
+                            Debug.WriteLine($"Level changed from 0x{lastLevel:X} to 0x{currentLevel:X}");
+                            timerModel.Split();
+                            lastLevel = currentLevel;
+                        }
                     }
                 }
 
@@ -102,7 +111,6 @@ namespace Livesplit.Borderlands3
 
                 if (initalUpdate)
                 {
-                    // We also get here if you just unpaused, so only do this if not initalized
                     if (bPauseTimer && !state.IsGameTimeInitialized)
                         state.SetGameTime(TimeSpan.Zero);
                     state.IsGameTimeInitialized = true;
@@ -124,11 +132,13 @@ namespace Livesplit.Borderlands3
 
             string possibleVersion = VersionHelper.GetProductVersion(possibleProcess.MainModule.FileName); // A string for our currently possible version
             string possibleStorefront = VersionHelper.GetStorefront(possibleProcess);
-            settings.SetGameVersion(possibleStorefront + "/" + possibleVersion);
 
             Debug.WriteLine("Possible Version: " + possibleVersion);
 
             MemoryDefinition possibleDef = new MemoryDefinition(possibleVersion, possibleStorefront);
+
+            settings.SetGameVersion(possibleStorefront + "/" + possibleVersion);
+            settings.SetSupportsLevelSplits(possibleDef.levelSplitsState != null);
 
             if (!possibleDef.bKnownVersion || possibleDef == null)
             {
@@ -147,6 +157,12 @@ namespace Livesplit.Borderlands3
 
             state.IsGameTimeInitialized = true;
             return true;
+        }
+
+        public void OnTimerStart(object sender, EventArgs e)
+        {
+            initalUpdate = true;
+            CounterHandler.Reset((LiveSplitState)sender);
         }
     }
 

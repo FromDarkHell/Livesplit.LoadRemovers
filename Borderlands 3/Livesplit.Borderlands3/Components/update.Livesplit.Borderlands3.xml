@@ -1,4 +1,20 @@
 <updates>
+  <update version="1.7">
+    <files>
+      <file path="Components/Livesplit.Borderlands3.dll" status="changed"/>
+    </files>
+    <changelog>
+      <change>Fixed that everything broke if you didn't have the counter component installed - the SQ counter will now just be disabled (by apple1417)</change>
+    </changelog>
+  </update>
+  <update version="1.6">
+    <files>
+      <file path="Components/Livesplit.Borderlands3.dll" status="changed"/>
+    </files>
+    <changelog>
+      <change>Added an option to automatically count SQs, for all versions with level change autosplitting (by apple1417)</change>
+    </changelog>
+  </update>
   <update version="1.5">
     <files>
       <file path="Components/Livesplit.Borderlands3.dll" status="changed"/>
