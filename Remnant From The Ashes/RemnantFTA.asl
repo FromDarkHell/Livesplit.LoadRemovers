@@ -32,6 +32,11 @@ state("Remnant-Win64-Shipping", "EGS-255171") {
 	bool isLoading  : 0x03359950, 0x0;
 }
 
+// == Game Version: 255,957DP ==
+state("Remnant-Win64-Shipping", "EGS-255957") {
+	bool isLoading  : 0x03359950, 0x0;
+}
+
 // =============================
 
 startup {
@@ -68,7 +73,8 @@ init
 
 	if(!vars.hashToVersion.ContainsKey(vars.gameHash)) {
 		print("[Remnant ASL]: Unknown/Unsupported Game Hash: " + vars.gameHash.ToString());
-		MessageBox.Show("Unknown Game Hash: \"" + vars.gameHash.ToString() + "\" \n Contact the developers for help!", "Remnant ASL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		MessageBox.Show("Unknown Game Hash: \"" + vars.gameHash.ToString() + "\" \n Contact the developers for help!\nHash Copied to clipboard...", "Remnant ASL", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		Clipboard.SetText(vars.gameHash.ToString());
 		return;
 	}
 
