@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PointersRoot pointerVersion="1.14">
+<PointersRoot pointerVersion="1.15">
    <egs>
       <OAK-PADDIESEL1-39> <!-- Initial Patch -->
          <loading>
@@ -329,7 +329,7 @@
             </offsets>
          </loading>
          <mainMenu>
-            <base>Borderlands3.exe+0x06068F70</base>
+            <base>Borderlands3.exe+0x06014430</base>
             <offsets>
                <element>0x0</element>
                <element>0x18</element>
@@ -337,7 +337,7 @@
             <value activeWhen="equal">0x1251</value>
          </mainMenu>
          <levelSplits>
-            <base>Borderlands3.exe+0x06068F70</base>
+            <base>Borderlands3.exe+0x06014430</base>
             <offsets>
                <element>0x0</element>
                <element>0x18</element>
