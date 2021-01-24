@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PointersRoot pointerVersion="1.15">
+<PointersRoot pointerVersion="1.17">
    <egs>
       <OAK-PADDIESEL1-39> <!-- Initial Patch -->
          <loading>
@@ -107,6 +107,32 @@
             <value activeWhen="equal">0x1</value>
          </mainMenu>
       </OAK-PATCHDIESEL1-191>
+	  
+	  <OAK-PATCHDIESEL0-224><!-- The Big Sad Patch -->
+         <loading>
+            <base>Borderlands3.exe+0x06BC6BE0</base>
+            <offsets>
+               <element>0xF8</element>
+               <element>0x9DC</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x0630ED00</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="equal">0x1253</value>
+         </mainMenu>
+         <levelSplits>
+            <base>Borderlands3.exe+0x0630ED00</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="levelNot">0x1253</value>
+         </levelSplits>
+      </OAK-PATCHDIESEL0-224>
 
    </egs>
 
@@ -345,6 +371,32 @@
             <value activeWhen="levelNot">0x1251</value>
          </levelSplits>
       </OAK-PATCHWIN64-127>
+      
+      <OAK-PATCHWIN640-172><!-- The Big Sad Patch -->
+         <loading>
+            <base>Borderlands3.exe+0x06925B70</base>
+            <offsets>
+               <element>0xF8</element>
+               <element>0x9DC</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x0601A430</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="equal">0x1251</value>
+         </mainMenu>
+         <levelSplits>
+            <base>Borderlands3.exe+0x0601A430</base>
+            <offsets>
+               <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="levelNot">0x1251</value>
+         </levelSplits>
+      </OAK-PATCHWIN640-172>
    </steam>
 
 </PointersRoot>
