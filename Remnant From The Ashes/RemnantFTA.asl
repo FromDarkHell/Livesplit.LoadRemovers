@@ -37,6 +37,10 @@ state("Remnant-Win64-Shipping", "EGS-255957") {
 	bool isLoading  : 0x03359950, 0x0;
 }
 
+state("Remnant-Win64-Shipping", "STEAM-255957") {
+	bool isLoading  : 0x03359950, 0x0;
+}
+
 // =============================
 
 startup {
@@ -49,8 +53,9 @@ startup {
 		{ "22FDCA89829A39D637E3316C4DC40D6C", "249276" },
 		{ "D24A54AD8E92573D7692400CC552ABB9", "250802" },
 		{ "9DAE6AEC337A8C80EE7527D11EDE78D1", "255171" },
-		{ "3C6B697F931F52430D291E27D2B9F102", "255957" }
+		{ "3C6B697F931F52430D291E27D2B9F102", "255957" },
 		// == Steam ==
+		{ "F017DDE24873B7C52671B3B3CDF28866", "255957" }
 	};
 
 }
