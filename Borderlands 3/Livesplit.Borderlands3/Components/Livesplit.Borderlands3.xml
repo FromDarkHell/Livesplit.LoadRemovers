@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PointersRoot pointerVersion="1.18">
+<PointersRoot pointerVersion="1.19">
    <egs>
       <OAK-PADDIESEL1-39> <!-- Initial Patch -->
          <loading>
@@ -133,6 +133,32 @@
             <value activeWhen="levelNot">0x1253</value>
          </levelSplits>
       </OAK-PATCHDIESEL0-224>
+
+	  <OAK-PATCHDIESEL1-304> <!-- We fight a...Raid? Boss? YAAAY! -->
+		<loading>
+            <base>Borderlands3.exe+0x06C3D380</base>
+            <offsets>
+               <element>0xF8</element>
+               <element>0x9DC</element>
+            </offsets>
+         </loading>
+         <mainMenu>
+            <base>Borderlands3.exe+0x0637BD00</base>
+            <offsets>
+			   <element>0x0</element>
+               <element>0x18</element>
+            </offsets>
+            <value activeWhen="equal">0x1253</value>
+         </mainMenu>
+         <levelSplits>
+            <base>Borderlands3.exe+0x0637BD00</base>
+            <offsets>
+               <element>0x0</element>
+			   <element>0x18</element>
+            </offsets>
+            <value activeWhen="levelNot">0x1253</value>
+         </levelSplits>
+	  </OAK-PATCHDIESEL1-304>      
 
    </egs>
 
