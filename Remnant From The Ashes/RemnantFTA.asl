@@ -41,6 +41,14 @@ state("Remnant-Win64-Shipping", "STEAM-255957") {
 	bool isLoading  : 0x03359950, 0x0;
 }
 
+// == Game Version: 270,287DP ==
+state("Remnant-Win64-Shipping", "EGS-270287") {
+	bool isLoading  : 0x03359990, 0x4;
+}
+
+state("Remnant-Win64-Shipping", "STEAM-270287") {
+	bool isLoading  : 0x03359990, 0x4;
+}
 // =============================
 
 startup {
@@ -54,6 +62,7 @@ startup {
 		{ "D24A54AD8E92573D7692400CC552ABB9", "250802" },
 		{ "9DAE6AEC337A8C80EE7527D11EDE78D1", "255171" },
 		{ "3C6B697F931F52430D291E27D2B9F102", "255957" },
+		{ "6B16F9838DD6D3F42E0C6765BA644609", "270287" },
 		// == Steam ==
 		{ "F017DDE24873B7C52671B3B3CDF28866", "255957" }
 	};
