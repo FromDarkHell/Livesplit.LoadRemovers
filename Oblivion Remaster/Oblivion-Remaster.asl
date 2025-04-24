@@ -11,8 +11,8 @@ state("OblivionRemastered-WinGDK-Shipping")
 startup
 {
     // Creates text components for variable information
-	vars.SetTextComponent = (Action<string, string>)((id, text) =>
-	{
+    vars.SetTextComponent = (Action<string, string>)((id, text) =>
+    {
         var textSettings = timer.Layout.Components.Where(x => x.GetType().Name == "TextComponent").Select(x => x.GetType().GetProperty("Settings").GetValue(x, null));
         var textSetting = textSettings.FirstOrDefault(x => (x.GetType().GetProperty("Text1").GetValue(x, null) as string) == id);
         if (textSetting == null)
@@ -30,7 +30,7 @@ startup
     });
 
     // Parent Setting
-	settings.Add("Variable Information", true, "Variable Information");
+    settings.Add("Variable Information", true, "Variable Information");
     settings.Add("World", false, "Current World Name", "Variable Information");
 }
 
@@ -57,7 +57,7 @@ init
         throw new Exception("One or more base pointers not found - retrying");
     }
 
-	vars.Watchers = new MemoryWatcherList
+    vars.Watchers = new MemoryWatcherList
     {
         // UWorld
         new MemoryWatcher<ulong>(new DeepPointer(uWorld)) { Name = "GWorld"},
@@ -75,7 +75,10 @@ init
         new MemoryWatcher<byte>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x2D8, 0x52)) { Name = "VUIStateSubsystem.bIsPlayerInDialog"},
 
         // UWorld.OwningGameInstance.SubsystemCollection.???.???.???.VMainMenuViewModel
-        // This is used for main menu detection -- If the value is NULLPTR, then we're *NOT* on the main menu
+        // Presumably, the first `???` is an instance of `VAltarUISubsystem`
+        //  - If this is the case, the second `???` will be an instance of an `AVAltarHud`
+        // Regardless, this is used for main menu detection
+        //  - If the watched value is NULLPTR, then we're *NOT* on the main menu
         new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x38, 0x30, 0x28, 0x340, 0x100)) { Name = "VMainMenuViewModel.OnSettingsMenuOpen"},
     };
 
