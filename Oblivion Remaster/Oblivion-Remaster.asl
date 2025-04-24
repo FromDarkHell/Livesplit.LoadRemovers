@@ -66,12 +66,17 @@ init
         new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x18)) { Name = "worldFName"},
         new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8)) { Name = "GameInstance"},
 
-        // UWorld.OwningGameInstance.???.???.LoadingScreenManager
-        // I'm pretty sure that this points into the FObjectSubsystemCollection for the game instance
-        // In the future, I'd like to do this part a bit better, but it's good for the time being :)
-        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0xB0)) { Name = "LoadingScreenManager"},
-        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0xB0, 0x78)) { Name = "LoadingScreenManager.ActiveLoadingScreenUserWidgetInstance"},
+        // For the following, the last offset on the pointer is used for determining the actual property value
+        // The comments above it represent the path to get to the UObject holding said property.
 
+        // UWorld.OwningGameInstance.SubsystemCollection.???.VUIStateSubsystem
+        new MemoryWatcher<byte>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x2D8, 0x50)) { Name = "VUIStateSubsystem.HUDVisibility"},
+        new MemoryWatcher<byte>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x2D8, 0x51)) { Name = "VUIStateSubsystem.bIsVisibleGlobal"},
+        new MemoryWatcher<byte>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x2D8, 0x52)) { Name = "VUIStateSubsystem.bIsPlayerInDialog"},
+
+        // UWorld.OwningGameInstance.SubsystemCollection.???.???.???.VMainMenuViewModel
+        // This is used for main menu detection -- If the value is NULLPTR, then we're *NOT* on the main menu
+        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x38, 0x30, 0x28, 0x340, 0x100)) { Name = "VMainMenuViewModel.OnSettingsMenuOpen"},
     };
 
     // Translating FName to String, this *could* be cached
@@ -112,12 +117,16 @@ update
     var worldFName = vars.Watchers["worldFName"].Current;
     current.world = worldFName != 0x0 ? vars.FNameToString(worldFName) : old.world;
     
-    var loadingScreenUserWidgetInstance = vars.Watchers["LoadingScreenManager.ActiveLoadingScreenUserWidgetInstance"].Current;
-    if(loadingScreenUserWidgetInstance == 0x00) {
-        current.isLoading = false;
+    var bIsVisibleGlobal = vars.Watchers["VUIStateSubsystem.bIsVisibleGlobal"].Current;
+    if(bIsVisibleGlobal == 0x00) {
+        // This property also gets set to true for the main menu
+        // So first, we gotta do some checking to see if we're on the main menu...
+
+        var onSettingsMenuOpen = vars.Watchers["VMainMenuViewModel.OnSettingsMenuOpen"].Current;
+        current.isLoading = (onSettingsMenuOpen == 0x00);
     }
     else {
-        current.isLoading = true;
+        current.isLoading = false;
     }
 
     // Prints the current map to the Livesplit layout if the setting is enabled
