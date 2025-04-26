@@ -80,6 +80,14 @@ init
         // Regardless, this is used for main menu detection
         //  - If the watched value is NULLPTR, then we're *NOT* on the main menu
         new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x38, 0x30, 0x28, 0x340, 0x100)) { Name = "VMainMenuViewModel.OnSettingsMenuOpen"},
+
+        // UWorld.OwningGameInstance.SubsystemCollection.???.???.???.VMessageMenuViewModel
+        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x38, 0x30, 0x28, 0x370, 0x100)) { Name = "VMessageMenuViewModel.Message"},
+        new MemoryWatcher<byte>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x38, 0x30, 0x28, 0x370, 0xF8)) { Name = "VMessageMenuViewModel.MenuType"},
+
+        // UWorld.NavigationSystem.MainNavData.Parent.Parent
+        // This is used for just, displaying what "original game" world the player is in
+        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x148, 0x28, 0x20, 0x20)) { Name = "OblivionWorld"},
     };
 
     // Translating FName to String, this *could* be cached
@@ -104,8 +112,32 @@ init
     vars.ReadFNameOfObject = (Func<ulong, string>)(obj => vars.FNameToString(game.ReadValue<ulong>((IntPtr)obj + 0x18)));
 
     vars.Watchers.UpdateAll(game);
-    
+    vars.EModalMenuLayoutType = new Dictionary<byte, string>() {
+        { 0x00, "Default"        },
+        { 0x01, "QuestAdded"     },
+        { 0x02, "QuestUpdated"   },
+        { 0x03, "SkillIncreased" },
+        { 0x04, "OutOfPrison"    },
+        { 0x05, "SellBuy"        },
+        { 0x06, "LoadSave"       },
+        { 0x07, "RaceSex"        },
+        { 0x08, "Recharge"       },
+        { 0x09, "Repair"         }
+    };
+
+    vars.EHUDVisibility = new Dictionary<byte, string>() {
+        { 0x00, "None"      },
+        { 0x01, "Main"      },
+        { 0x02, "Info"      },
+        { 0x04, "Reticle"   },
+        { 0x08, "Subtitle"  },
+        { 0x16, "Breath"    },
+        { 0x32, "MapPage"   },
+        { 0x64, "QuickKeys" }
+    };
+
     print("Game Engine: " + gameEngine.ToString("X"));
+    print("World: " + uWorld.ToString("X"));
 
     // Sets the var world from the memory watcher
     current.world = old.world = vars.FNameToString(vars.Watchers["worldFName"].Current);
@@ -115,10 +147,6 @@ init
 update
 {
     vars.Watchers.UpdateAll(game);
-
-    // Get the current world name as string, only if *UWorld isnt null
-    var worldFName = vars.Watchers["worldFName"].Current;
-    current.world = worldFName != 0x0 ? vars.FNameToString(worldFName) : old.world;
     
     var bIsVisibleGlobal = vars.Watchers["VUIStateSubsystem.bIsVisibleGlobal"].Current;
     if(bIsVisibleGlobal == 0x00) {
@@ -135,14 +163,38 @@ update
     // Prints the current map to the Livesplit layout if the setting is enabled
     if(settings["World"]) 
     {
-        vars.SetTextComponent("World:",current.world.ToString());
-        if (old.world != current.world) print("World:" + current.world.ToString());
+        // Get the current world name as string, only if *UWorld isnt null
+        var worldFName = vars.Watchers["OblivionWorld"].Current;
+        current.world = worldFName != 0x0 ? vars.ReadFNameOfObject(worldFName) : "None";
+
+        vars.SetTextComponent("World:", current.world.ToString());
+        if (old.world != current.world) print("World: " + current.world.ToString());
     }
 }
 
 isLoading
 {
     return current.isLoading;
+}
+
+start 
+{
+    // First we're gonna check if the current open menu (if any exist) is a RaceSex menu
+    // If it is, let's check whether or not the message has changed from valid to NULLPTR
+    // Then (in the event of a cancellation), we should check the current HUDVisibility.
+    //  - If the HUDVisibility is still `Reticle`, then that means that the user *didn't* actually start a new game
+    //      - Instead, they just clicked `No` instead of Continue / New Game.
+    var menuType = vars.EModalMenuLayoutType[vars.Watchers["VMessageMenuViewModel.MenuType"].Current];
+    if(menuType == "RaceSex") {
+        var message = vars.Watchers["VMessageMenuViewModel.Message"];
+
+        if(message.Current == 0x00 && message.Old != 0x00) {
+            var HUDVisibility = vars.EHUDVisibility[vars.Watchers["VUIStateSubsystem.HUDVisibility"].Current];
+            if(HUDVisibility != "Reticle") {
+                return true;
+            }
+        }
+    }
 }
 
 exit
