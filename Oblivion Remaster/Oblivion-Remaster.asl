@@ -32,6 +32,19 @@ startup
     // Parent Setting
     settings.Add("Variable Information", true, "Variable Information");
     settings.Add("World", false, "Current World Name", "Variable Information");
+
+    settings.Add("Auto-Splitting", true, "Auto-Splitting");
+    
+    vars.WorldTransitions = new Dictionary<string, string>() {
+        { "Sewers Finish", "L_ImperialSewers03" }
+    };
+
+    foreach (var item in vars.WorldTransitions)
+    {
+        settings.Add(item.Value, false, item.Key, "Auto-Splitting");
+    }
+
+    settings.Add("end_game", true, "Main Game Finish", "Auto-Splitting");
 }
 
 init
@@ -86,8 +99,12 @@ init
         new MemoryWatcher<byte>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x38, 0x30, 0x28, 0x370, 0xF8)) { Name = "VMessageMenuViewModel.MenuType"},
 
         // UWorld.NavigationSystem.MainNavData.Parent.Parent
-        // This is used for just, displaying what "original game" world the player is in
+        // This is used for detecting what "original game" world the player is in
         new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x148, 0x28, 0x20, 0x20)) { Name = "OblivionWorld"},
+
+        // UWorld.OwningGameInstance.SubsystemCollection.???.???.???.WBP_ModernMenu_QuestSkillPopup_C.Properties.Icon
+        // This is used for detecting the current quest state
+        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x1B8, 0x90, 0x10, 0x518 + 0x60)) { Name = "WBP_ModernMenu_QuestSkillPopup_C.Properties.Icon"},
     };
 
     // Translating FName to String, this *could* be cached
@@ -125,15 +142,17 @@ init
         { 0x09, "Repair"         }
     };
 
-    vars.EHUDVisibility = new Dictionary<byte, string>() {
-        { 0x00, "None"      },
-        { 0x01, "Main"      },
-        { 0x02, "Info"      },
-        { 0x04, "Reticle"   },
-        { 0x08, "Subtitle"  },
-        { 0x16, "Breath"    },
-        { 0x32, "MapPage"   },
-        { 0x64, "QuickKeys" }
+    // Note: Unlike `EModalMenuLayoutType`, this enum is actually a flag
+    // So in order to check if the HUDVisibility is Reticle, you need to do & 0x01
+    vars.EHUDVisibility = new Dictionary<string, byte>() {
+        { "None",      0x00 },
+        { "Main",      0x01 },
+        { "Info",      0x02 },
+        { "Reticle",   0x04 },
+        { "Subtitle",  0x08 },
+        { "Breath",    0x16 },
+        { "MapPage" ,  0x32 },
+        { "QuickKeys", 0x64 }
     };
 
     print("Game Engine: " + gameEngine.ToString("X"));
@@ -142,6 +161,8 @@ init
     // Sets the var world from the memory watcher
     current.world = old.world = vars.FNameToString(vars.Watchers["worldFName"].Current);
     current.isLoading = false;
+
+    vars.finishedFirstMQ16Dialog = false;
 }
 
 update
@@ -160,13 +181,13 @@ update
         current.isLoading = false;
     }
 
+    // Get the current world name as string, only if *UWorld isnt null
+    var worldFName = vars.Watchers["OblivionWorld"].Current;
+    current.world = worldFName != 0x0 ? vars.ReadFNameOfObject(worldFName) : "None";
+
     // Prints the current map to the Livesplit layout if the setting is enabled
     if(settings["World"]) 
     {
-        // Get the current world name as string, only if *UWorld isnt null
-        var worldFName = vars.Watchers["OblivionWorld"].Current;
-        current.world = worldFName != 0x0 ? vars.ReadFNameOfObject(worldFName) : "None";
-
         vars.SetTextComponent("World:", current.world.ToString());
         if (old.world != current.world) print("World: " + current.world.ToString());
     }
@@ -181,18 +202,55 @@ start
 {
     // First we're gonna check if the current open menu (if any exist) is a RaceSex menu
     // If it is, let's check whether or not the message has changed from valid to NULLPTR
-    // Then (in the event of a cancellation), we should check the current HUDVisibility.
-    //  - If the HUDVisibility is still `Reticle`, then that means that the user *didn't* actually start a new game
-    //      - Instead, they just clicked `No` instead of Continue / New Game.
     var menuType = vars.EModalMenuLayoutType[vars.Watchers["VMessageMenuViewModel.MenuType"].Current];
     if(menuType == "RaceSex") {
         var message = vars.Watchers["VMessageMenuViewModel.Message"];
 
         if(message.Current == 0x00 && message.Old != 0x00) {
-            var HUDVisibility = vars.EHUDVisibility[vars.Watchers["VUIStateSubsystem.HUDVisibility"].Current];
-            if(HUDVisibility != "Reticle") {
+            var HUDVisibility = vars.Watchers["VUIStateSubsystem.HUDVisibility"].Current;
+            // Check if the EHUDVisibility.Reticle flag was removed from the HUDVisibility
+            if(HUDVisibility & vars.EHUDVisibility["Reticle"] != 0x01) {
                 return true;
             }
+        }
+    }
+}
+
+split
+{
+    if(current.world != old.world && current.world == "None") {
+        if(settings.ContainsKey(old.world) && settings[old.world] == true) {
+            return true;
+        }
+    }
+    
+    if(settings["end_game"]) {
+        // First, we wanna check the current map
+        // `L_ICTempleDistrictTempleOfTheOneMQ16` corresponds to the final quest-stage version of Temple of the One
+        if(current.world == "L_ICTempleDistrictTempleOfTheOneMQ16") {
+            var bIsPlayerInDialog = vars.Watchers["VUIStateSubsystem.bIsPlayerInDialog"].Current == 0x01;
+            var bWasPlayerInDialog = vars.Watchers["VUIStateSubsystem.bIsPlayerInDialog"].Old == 0x01;
+
+            var bJustLeftDialog = (bIsPlayerInDialog == false && bWasPlayerInDialog == true);
+
+            if(bJustLeftDialog) {
+                // If we've just left a dialog *and* we've finished that first MQ16 dialog line
+                // Then it means that we've (probably!) finished skipping the final dialog set
+                // In the future, I'd like to do this logic a little bit differently
+                // This can result in some false positives depending on when/if you accidentally talk to Martin again.
+                if(vars.finishedFirstMQ16Dialog == true) {
+                    vars.finishedFirstMQ16Dialog = false;
+                    return true;
+                }
+                
+                if(vars.finishedFirstMQ16Dialog == false) {
+                    print("Finished first MQ16 dialog!");
+                    vars.finishedFirstMQ16Dialog = true;
+                }
+            }
+        }
+        else {
+            vars.finishedFirstMQ16Dialog = false;
         }
     }
 }
