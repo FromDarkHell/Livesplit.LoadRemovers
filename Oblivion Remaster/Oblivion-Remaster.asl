@@ -208,8 +208,8 @@ start
 
         if(message.Current == 0x00 && message.Old != 0x00) {
             var HUDVisibility = vars.Watchers["VUIStateSubsystem.HUDVisibility"].Current;
-            // Check if the EHUDVisibility.Reticle flag was removed from the HUDVisibility
-            if(HUDVisibility & vars.EHUDVisibility["Reticle"] != 0x01) {
+            // Check and see if the HUDVisibility flags were changed (at all)
+            if(HUDVisibility != vars.EHUDVisibility["Reticle"]) {
                 return true;
             }
         }
