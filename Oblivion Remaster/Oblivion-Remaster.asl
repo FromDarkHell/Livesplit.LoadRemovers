@@ -100,11 +100,20 @@ init
 
         // UWorld.NavigationSystem.MainNavData.Parent.Parent
         // This is used for detecting what "original game" world the player is in
-        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x148, 0x28, 0x20, 0x20)) { Name = "OblivionWorld"},
+        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x148, 0x28, 0x20, 0x20)) { 
+            Name = "OblivionWorld",
+            FailAction = MemoryWatcher.ReadFailAction.SetZeroOrNull
+        },
 
         // UWorld.OwningGameInstance.SubsystemCollection.???.???.???.WBP_ModernMenu_QuestSkillPopup_C.Properties.Icon
         // This is used for detecting the current quest state
         new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x1B8, 0x90, 0x10, 0x518 + 0x60)) { Name = "WBP_ModernMenu_QuestSkillPopup_C.Properties.Icon"},
+
+        // UWorld.OwningGameInstance.SubsystemCollection.LoadingScreenManager
+        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0xB0, 0x78)) { 
+            Name = "LoadingScreenManager.ActiveLoadingScreenUserWidgetInstance",
+            FailAction = MemoryWatcher.ReadFailAction.SetZeroOrNull
+        },
     };
 
     // Translating FName to String, this *could* be cached
@@ -168,18 +177,8 @@ init
 update
 {
     vars.Watchers.UpdateAll(game);
-    
-    var bIsVisibleGlobal = vars.Watchers["VUIStateSubsystem.bIsVisibleGlobal"].Current;
-    if(bIsVisibleGlobal == 0x00) {
-        // This property also gets set to true for the main menu
-        // So first, we gotta do some checking to see if we're on the main menu...
 
-        var onSettingsMenuOpen = vars.Watchers["VMainMenuViewModel.OnSettingsMenuOpen"].Current;
-        current.isLoading = (onSettingsMenuOpen == 0x00);
-    }
-    else {
-        current.isLoading = false;
-    }
+    current.isLoading = vars.Watchers["LoadingScreenManager.ActiveLoadingScreenUserWidgetInstance"].Current != 0x00;
 
     // Get the current world name as string, only if *UWorld isnt null
     var worldFName = vars.Watchers["OblivionWorld"].Current;
