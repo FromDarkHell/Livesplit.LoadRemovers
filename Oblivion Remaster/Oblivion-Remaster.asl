@@ -114,11 +114,10 @@ init
             Name = "GameInstance.UNK1",
         },
 
-        // Engine.TinyFont.???.DataDrivenCVarEngineSubsystem.???.???
-        // See: above comment about Ghidra
-        // Going through the font is some real wack stuff, but it works (probably) :)
-        new MemoryWatcher<uint>(new DeepPointer(gameEngine, 0x30, 0x148, 0x4B8, 0xA8, 0x610)) { 
-            Name = "DataDrivenCVarEngineSubsystem.???.UNK1",
+        // UWorld.OwningGameInstance.SubsystemCollection.LoadingScreenManager
+        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0xB0, 0x78)) { 
+            Name = "LoadingScreenManager.ActiveLoadingScreenUserWidgetInstance",
+            FailAction = MemoryWatcher.ReadFailAction.SetZeroOrNull
         },
     };
 
@@ -177,6 +176,7 @@ init
     current.world = old.world = vars.FNameToString(vars.Watchers["worldFName"].Current);
     current.isLoading = false;
 
+    vars.worldSpaces = new List<string>() { "L_Tamriel", "L_SEWorld" };
     vars.finishedFirstMQ16Dialog = false;
 }
 
@@ -189,9 +189,20 @@ update
     current.world = worldFName != 0x0 ? vars.ReadFNameOfObject(worldFName) : "None";
 
     var gameInstanceState = vars.Watchers["GameInstance.UNK1"].Current;
-    var CVarSubsystemLoading = vars.Watchers["DataDrivenCVarEngineSubsystem.???.UNK1"].Current;
+    
+    var bIsVisibleGlobal = vars.Watchers["VUIStateSubsystem.bIsVisibleGlobal"].Current;
+    if(bIsVisibleGlobal == 0x00) {
+        // This property also gets set to true for the main menu
+        // So first, we gotta do some checking to see if we're on the main menu...
 
-    current.isLoading = (gameInstanceState == 0x01 || CVarSubsystemLoading == 0x257);
+        var onSettingsMenuOpen = vars.Watchers["VMainMenuViewModel.OnSettingsMenuOpen"].Current;
+        if(onSettingsMenuOpen == 0x00) {
+            current.isLoading = true;
+        }
+    }
+    else {
+        current.isLoading = (gameInstanceState == 1);
+    }
 
     // Prints the current map to the Livesplit layout if the setting is enabled
     if(settings["World"]) 
