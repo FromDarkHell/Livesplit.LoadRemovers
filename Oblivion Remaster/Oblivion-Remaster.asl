@@ -105,14 +105,20 @@ init
             FailAction = MemoryWatcher.ReadFailAction.SetZeroOrNull
         },
 
-        // UWorld.OwningGameInstance.SubsystemCollection.???.???.???.WBP_ModernMenu_QuestSkillPopup_C.Properties.Icon
-        // This is used for detecting the current quest state
-        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0x1B8, 0x90, 0x10, 0x518 + 0x60)) { Name = "WBP_ModernMenu_QuestSkillPopup_C.Properties.Icon"},
+        // UWorld.OwningGameInstance.???
+        // I'd love to figure out what this actually points to
+        // But in order to do that, I gotta pop the game into Ghidra and everything
+        // This is some sort of internal C++-allocated (or private) property
+        // Nothing exposed via a UProperty
+        new MemoryWatcher<uint>(new DeepPointer(uWorld, 0x1B8, 0x1C0)) { 
+            Name = "GameInstance.UNK1",
+        },
 
-        // UWorld.OwningGameInstance.SubsystemCollection.LoadingScreenManager
-        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0xB0, 0x78)) { 
-            Name = "LoadingScreenManager.ActiveLoadingScreenUserWidgetInstance",
-            FailAction = MemoryWatcher.ReadFailAction.SetZeroOrNull
+        // Engine.TinyFont.???.DataDrivenCVarEngineSubsystem.???.???
+        // See: above comment about Ghidra
+        // Going through the font is some real wack stuff, but it works (probably) :)
+        new MemoryWatcher<uint>(new DeepPointer(gameEngine, 0x30, 0x148, 0x4B8, 0xA8, 0x610)) { 
+            Name = "DataDrivenCVarEngineSubsystem.???.UNK1",
         },
     };
 
@@ -178,11 +184,14 @@ update
 {
     vars.Watchers.UpdateAll(game);
 
-    current.isLoading = vars.Watchers["LoadingScreenManager.ActiveLoadingScreenUserWidgetInstance"].Current != 0x00;
-
     // Get the current world name as string, only if *UWorld isnt null
     var worldFName = vars.Watchers["OblivionWorld"].Current;
     current.world = worldFName != 0x0 ? vars.ReadFNameOfObject(worldFName) : "None";
+
+    var gameInstanceState = vars.Watchers["GameInstance.UNK1"].Current;
+    var CVarSubsystemLoading = vars.Watchers["DataDrivenCVarEngineSubsystem.???.UNK1"].Current;
+
+    current.isLoading = (gameInstanceState == 0x01 || CVarSubsystemLoading == 0x257);
 
     // Prints the current map to the Livesplit layout if the setting is enabled
     if(settings["World"]) 
