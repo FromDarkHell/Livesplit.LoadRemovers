@@ -7,7 +7,6 @@ state("OblivionRemastered-WinGDK-Shipping")
 {
 }
 
-
 startup
 {
     // Creates text components for variable information
@@ -29,10 +28,6 @@ startup
         textSetting.GetType().GetProperty("Text2").SetValue(textSetting, text);
     });
 
-    // Parent Setting
-    settings.Add("Variable Information", true, "Variable Information");
-    settings.Add("World", false, "Current World Name", "Variable Information");
-
     settings.Add("Auto-Splitting", true, "Auto-Splitting");
     
     vars.WorldTransitions = new Dictionary<string, string>() {
@@ -45,6 +40,11 @@ startup
     }
 
     settings.Add("end_game", true, "Main Game Finish", "Auto-Splitting");
+
+    // Parent Setting
+    settings.Add("Variable Information", true, "Variable Information");
+    settings.Add("World", false, "Current World Name", "Variable Information");
+    settings.Add("player_pos", false, "Player Position", "Variable Information");
 }
 
 init
@@ -55,7 +55,6 @@ init
     // Scanning the MainModule for static pointers to GSyncLoadCount, UWorld, UEngine and FNamePool
     var scn = new SignatureScanner(game, game.MainModule.BaseAddress, game.MainModule.ModuleMemorySize);
 
-
     var uWorldTrg = new SigScanTarget(3, "48 8b 1d ?? ?? ?? ?? 48 85 db 74 ?? 41 b0") { OnFound = (p, s, ptr) => ptr + 0x4 + game.ReadValue<int>(ptr) };
     var uWorld = scn.Scan(uWorldTrg);
 
@@ -64,8 +63,23 @@ init
     var fNamePoolTrg = new SigScanTarget(3, "48 8d 05 ?? ?? ?? ?? eb ?? 48 8d 0d ?? ?? ?? ?? e8 ?? ?? ?? ?? c6 05 ?? ?? ?? ?? ?? 0f 10 07") { OnFound = (p, s, ptr) => ptr + 0x4 + game.ReadValue<int>(ptr) };
     var fNamePool = scn.Scan(fNamePoolTrg);
 
+    // Shoutouts to AngelicKnight :)
+    // Both of these following properties are not actually exposed via UProperty in UE5
+    // These are all C++ / internal engine objects
+    // They helped me so they get bonus points :)
+    var currentPlayerTrg = new SigScanTarget(3, "48 8B 05 ?? ?? ?? ?? 48 8B 88 A0 08 00 00") { OnFound = (p, s, ptr) => ptr + 0x4 + game.ReadValue<int>(ptr) };
+    vars.currentPlayer = scn.Scan(currentPlayerTrg);
+
+    var TESFORMListTrg = new SigScanTarget(9, "41 56 48 83 EC 30 4C 8B 35 ?? ?? ?? ?? 49 81 C6 08 01 00 00") { 
+        OnFound = (p, s, ptr) => {
+            var basePtr = (ptr + 0x4 + game.ReadValue<int>(ptr));
+            return game.ReadValue<IntPtr>(basePtr);
+        }
+    };
+    vars.TESFORMList = scn.Scan(TESFORMListTrg);
+
     // Throwing in case any base pointers can't be found (yet, hopefully)
-    if(uWorld == IntPtr.Zero || gameEngine == IntPtr.Zero || fNamePool == IntPtr.Zero)
+    if(uWorld == IntPtr.Zero || gameEngine == IntPtr.Zero || fNamePool == IntPtr.Zero || vars.currentPlayer == IntPtr.Zero || vars.TESFORMList == IntPtr.Zero)
     {
         throw new Exception("One or more base pointers not found - retrying");
     }
@@ -114,9 +128,8 @@ init
             Name = "GameInstance.UNK1",
         },
 
-        // UWorld.OwningGameInstance.SubsystemCollection.LoadingScreenManager
-        new MemoryWatcher<ulong>(new DeepPointer(uWorld, 0x1B8, 0x108, 0xB0, 0x78)) { 
-            Name = "LoadingScreenManager.ActiveLoadingScreenUserWidgetInstance",
+        new MemoryWatcher<ulong>(new DeepPointer(vars.currentPlayer)) { 
+            Name = "CurrentPlayer",
             FailAction = MemoryWatcher.ReadFailAction.SetZeroOrNull
         },
     };
@@ -141,6 +154,89 @@ init
         return name;
     });
     vars.ReadFNameOfObject = (Func<ulong, string>)(obj => vars.FNameToString(game.ReadValue<ulong>((IntPtr)obj + 0x18)));
+    
+    vars.ReadFVector = (Func<ulong, Dictionary<string, double>>)(start => {
+        // If the FVector is pointing to NULL, just return a blank dictionary
+        if(start == 0x00) 
+            return new Dictionary<string, double>() { };
+
+        var X = game.ReadValue<double>((IntPtr)start + (0x08 * 0));
+        var Y = game.ReadValue<double>((IntPtr)start + (0x08 * 1));
+        var Z = game.ReadValue<double>((IntPtr)start + (0x08 * 2));
+
+        return new Dictionary<string, double>() {
+            { "X", X },
+            { "Y", Y },
+            { "Z", Z }
+        };
+    });
+
+    vars.ReadTESVector = (Func<ulong, Dictionary<string, float>>)(start => {
+        // If the vector is pointing to NULL, just return a blank dictionary
+        if(start == 0x00) 
+            return new Dictionary<string, float>() { };
+        
+        var X = game.ReadValue<float>((IntPtr)start + (0x04 * 0));
+        var Y = game.ReadValue<float>((IntPtr)start + (0x04 * 1));
+        var Z = game.ReadValue<float>((IntPtr)start + (0x04 * 2));
+
+        return new Dictionary<string, float>() {
+            { "X", X },
+            { "Y", Y },
+            { "Z", Z }
+        };
+    });
+
+    // This caches all of the Quest IDs -> memory addresses for all of the quests, this way we're not doing unnecessary pointer redirections every refresh
+    var questMapping = new Dictionary<string, IntPtr>() { }; 
+
+    // This returns a dictionary used for storing all the quest states
+    // It maps a QuestID to it's various properties (i.e. stage + status)
+    vars.UpdateQuestStates = (Func<IntPtr, Dictionary<string, Dictionary<string, object>>>)(TESFormMapping => {
+        if(TESFormMapping == IntPtr.Zero) 
+            return new Dictionary<string, Dictionary<string, object>>() { };
+
+        var result = new Dictionary<string, Dictionary<string, object>>() { };
+
+        if(questMapping.Count == 0) {
+            print("Filling Quest ID -> Address Mapping...");
+
+            var startTime = DateTime.Now.Ticks;
+            
+            var questPtr = TESFormMapping + 0x108;
+            do {
+                var nextQuest = game.ReadValue<IntPtr>(questPtr);
+                
+                var questID = game.ReadString(
+                    game.ReadValue<IntPtr>(nextQuest + 0xC0), 
+                    0xFF // Note: idk how long this actually is, but it felt good enough :)
+                );
+
+                // The previous quest stores the pointer to the next quest directly after
+                questPtr = game.ReadValue<IntPtr>(questPtr + 0x08);
+
+                questMapping[questID] = nextQuest;
+            }
+            while(questPtr != IntPtr.Zero);
+            
+            var endTime = DateTime.Now.Ticks;
+            var durationMS = (endTime - startTime) / TimeSpan.TicksPerMillisecond;
+            print("Completed filling Quest ID -> Address Mapping in " + (durationMS.ToString() + "ms"));
+        }
+
+        foreach(var mapping in questMapping) {
+            var questID = mapping.Key;
+            var questPtr = mapping.Value;
+
+            result[questID] = new Dictionary<string, object>() {
+                { "status", game.ReadValue<byte>(questPtr + 0x78) },
+                { "stage", game.ReadValue<byte>(questPtr + 0xB8) }
+            };
+        }
+
+        return result;
+    });
+
 
     vars.Watchers.UpdateAll(game);
     vars.EModalMenuLayoutType = new Dictionary<byte, string>() {
@@ -171,25 +267,29 @@ init
 
     print("Game Engine: " + gameEngine.ToString("X"));
     print("World: " + uWorld.ToString("X"));
+    print("CurrentPlayer: " + vars.currentPlayer.ToString("X"));
+    print("PlayerController: " + vars.Watchers["CurrentPlayer"].Current.ToString("X"));
+    print("TESFORMList: " + vars.TESFORMList.ToString("X"));
 
     // Sets the var world from the memory watcher
     current.world = old.world = vars.FNameToString(vars.Watchers["worldFName"].Current);
     current.isLoading = false;
-
-    vars.worldSpaces = new List<string>() { "L_Tamriel", "L_SEWorld" };
-    vars.finishedFirstMQ16Dialog = false;
+    current.questStates = old.QuestStates = vars.UpdateQuestStates(vars.TESFORMList);
 }
 
 update
 {
     vars.Watchers.UpdateAll(game);
-
+        
     // Get the current world name as string, only if *UWorld isnt null
     var worldFName = vars.Watchers["OblivionWorld"].Current;
     current.world = worldFName != 0x0 ? vars.ReadFNameOfObject(worldFName) : "None";
 
+    // Read the current player position
+    current.playerPosition = vars.ReadTESVector(vars.Watchers["CurrentPlayer"].Current + 0x64);
+    current.questStates = vars.UpdateQuestStates(vars.TESFORMList);
+
     var gameInstanceState = vars.Watchers["GameInstance.UNK1"].Current;
-    
     var bIsVisibleGlobal = vars.Watchers["VUIStateSubsystem.bIsVisibleGlobal"].Current;
     if(bIsVisibleGlobal == 0x00) {
         // This property also gets set to true for the main menu
@@ -209,6 +309,12 @@ update
     {
         vars.SetTextComponent("World:", current.world.ToString());
         if (old.world != current.world) print("World: " + current.world.ToString());
+    }
+
+    if(settings["player_pos"]) 
+    {
+        var positionString = "(" + (Math.Round(current.playerPosition["X"], 2) + "," + (Math.Round(current.playerPosition["Y"], 2) + ",") + (Math.Round(current.playerPosition["Z"], 2))) + ")";
+        vars.SetTextComponent("Location:", positionString);
     }
 }
 
@@ -247,29 +353,23 @@ split
         // First, we wanna check the current map
         // `L_ICTempleDistrictTempleOfTheOneMQ16` corresponds to the final quest-stage version of Temple of the One
         if(current.world == "L_ICTempleDistrictTempleOfTheOneMQ16") {
-            var bIsPlayerInDialog = vars.Watchers["VUIStateSubsystem.bIsPlayerInDialog"].Current == 0x01;
-            var bWasPlayerInDialog = vars.Watchers["VUIStateSubsystem.bIsPlayerInDialog"].Old == 0x01;
+            // Now that we know we're in the final quest stage version of the Temple of the One
+            // Let's start checking the quest state
+            var MQ16Status = current.questStates["MQ16"];
+            
+            // This checks whether or not the MQ16 is currently "on"
+            if((MQ16Status["status"] & 1) != 0x00) {
+                // Then we're gonna check the stage
+                // Realistically, the stage can't be set without the quest being *on*
+                // But *shrug*
+                var bIsPlayerInDialog = vars.Watchers["VUIStateSubsystem.bIsPlayerInDialog"].Current == 0x01;
+                var bWasPlayerInDialog = vars.Watchers["VUIStateSubsystem.bIsPlayerInDialog"].Old == 0x01;
 
-            var bJustLeftDialog = (bIsPlayerInDialog == false && bWasPlayerInDialog == true);
-
-            if(bJustLeftDialog) {
-                // If we've just left a dialog *and* we've finished that first MQ16 dialog line
-                // Then it means that we've (probably!) finished skipping the final dialog set
-                // In the future, I'd like to do this logic a little bit differently
-                // This can result in some false positives depending on when/if you accidentally talk to Martin again.
-                if(vars.finishedFirstMQ16Dialog == true) {
-                    vars.finishedFirstMQ16Dialog = false;
+                var bJustLeftDialog = (bIsPlayerInDialog == false && bWasPlayerInDialog == true);
+                if(MQ16Status["stage"] >= 46 && bJustLeftDialog) {
                     return true;
                 }
-                
-                if(vars.finishedFirstMQ16Dialog == false) {
-                    print("Finished first MQ16 dialog!");
-                    vars.finishedFirstMQ16Dialog = true;
-                }
             }
-        }
-        else {
-            vars.finishedFirstMQ16Dialog = false;
         }
     }
 }

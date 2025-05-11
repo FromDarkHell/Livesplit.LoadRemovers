@@ -5,7 +5,7 @@ state("Youngblood_x64vk", "bnet") {
 }
 
 state("Youngblood_x64vk", "steam") {
-	// Pointers courtesy of TheFuncannon
+	// Pointers courtesy of TeaFC
 	bool isLoading  : "Youngblood_x64vk.exe", 0x3FB7A80;
 	bool isMainMenu : "Youngblood_x64vk.exe", 0x3BF3A14;
 }
