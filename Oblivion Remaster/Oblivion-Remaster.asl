@@ -43,7 +43,7 @@ startup
 
     // Parent Setting
     settings.Add("Variable Information", true, "Variable Information");
-    settings.Add("World", false, "Current World Name", "Variable Information");
+    settings.Add("show_world", false, "Current World Name", "Variable Information");
     settings.Add("player_pos", false, "Player Position", "Variable Information");
 }
 
@@ -67,7 +67,12 @@ init
     // Both of these following properties are not actually exposed via UProperty in UE5
     // These are all C++ / internal engine objects
     // They helped me so they get bonus points :)
-    var currentPlayerTrg = new SigScanTarget(3, "48 8B 05 ?? ?? ?? ?? 48 8B 88 A0 08 00 00") { OnFound = (p, s, ptr) => ptr + 0x4 + game.ReadValue<int>(ptr) };
+
+    // v1.512: 48 8B 05 B5 18 A1 02 48 8B 88 B0 08 00 00 48 85 C9 0F 84 FD 01 00 00
+    // v0.411: 48 8B 05 65 2E A0 02 48 8B 88 B0 08 00 00 48 85 C9 0F 84 FD 01 00 00
+    var currentPlayerTrg = new SigScanTarget(3, "48 8B 05 ?? ?? ?? ?? 48 8B 88 ?? ?? 00 00 48 85 C9 0F 84 FD 01 00 00") { 
+        OnFound = (p, s, ptr) => ptr + 0x4 + game.ReadValue<int>(ptr)
+    };
     vars.currentPlayer = scn.Scan(currentPlayerTrg);
 
     var TESFORMListTrg = new SigScanTarget(9, "41 56 48 83 EC 30 4C 8B 35 ?? ?? ?? ?? 49 81 C6 08 01 00 00") { 
@@ -79,10 +84,12 @@ init
     vars.TESFORMList = scn.Scan(TESFORMListTrg);
 
     // Throwing in case any base pointers can't be found (yet, hopefully)
-    if(uWorld == IntPtr.Zero || gameEngine == IntPtr.Zero || fNamePool == IntPtr.Zero || vars.currentPlayer == IntPtr.Zero || vars.TESFORMList == IntPtr.Zero)
-    {
-        throw new Exception("One or more base pointers not found - retrying");
-    }
+    if(uWorld == IntPtr.Zero) throw new Exception("Unable to find `UWorld` Instance...");
+    if(gameEngine == IntPtr.Zero) throw new Exception("Unable to find `UGameEngine` ...");
+    if(fNamePool == IntPtr.Zero) throw new Exception("Unable to find fNamePool...");
+    
+    if(vars.currentPlayer == IntPtr.Zero) throw new Exception("Unable to find `currentPlayer` Instance...");
+    if(vars.TESFORMList == IntPtr.Zero) throw new Exception("Unable to find `TESFormList` Instance...");
 
     vars.Watchers = new MemoryWatcherList
     {
@@ -305,7 +312,7 @@ update
     }
 
     // Prints the current map to the Livesplit layout if the setting is enabled
-    if(settings["World"]) 
+    if(settings["show_world"]) 
     {
         vars.SetTextComponent("World:", current.world.ToString());
         if (old.world != current.world) print("World: " + current.world.ToString());

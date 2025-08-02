@@ -15,7 +15,7 @@ state("Oblivion", "1.0.228")
 state("Oblivion", "1.0.228-FR")
 {
     // Version 1.0.228, Size 7704576
-    int isLoadingScreen : "Oblivion.exe", 0x006E2254, 0x20, 0x14, 0x18, 0x114, 0x114, 0x04;
+    int isLoadingScreen : "Oblivion.exe", 0x006E4F00, 0x58, 0x114, 0x114, 0x114, 0x04;
     bool quickLoad      : "Oblivion.exe", 0x6BE428;
     bool isWaiting      : "Oblivion.exe", 0x6BE410;
 }
@@ -23,7 +23,7 @@ state("Oblivion", "1.0.228-FR")
 state("Oblivion", "1.0.228-GER")
 {
     // Version 1.0.228, Size 7704576
-    int isLoadingScreen : "Oblivion.exe", 0x006E2254, 0x20, 0x14, 0x18, 0x114, 0x114, 0x04;
+    int isLoadingScreen : "Oblivion.exe", 0x006E4F00, 0x58, 0x114, 0x114, 0x114, 0x04;
     bool quickLoad      : "Oblivion.exe", 0x6BE428;
     bool isWaiting      : "Oblivion.exe", 0x6BE410;
 }
@@ -47,14 +47,14 @@ state("Oblivion", "1.1.511")
 
 state("Oblivion", "1.1.511-FR")
 {
-    int isLoadingScreen : "Oblivion.exe", 0x006FB6E8, 0x18, 0x14, 0x18, 0x114, 0x114, 0x04;
+    int isLoadingScreen : "Oblivion.exe", 0x006EABB0, 0x188, 0x2C, 0x4;
     bool quickLoad      : "Oblivion.exe", 0x6D3A18;
     bool isWaiting      : "Oblivion.exe", 0x6D3A00;
 }
 
 state("Oblivion", "1.1.511-GER")
 {
-    int isLoadingScreen : "Oblivion.exe", 0x006FB6E8, 0x18, 0x14, 0x18, 0x114, 0x114, 0x04;
+    int isLoadingScreen : "Oblivion.exe", 0x006EABB0, 0x188, 0x2C, 0x4;
     bool quickLoad      : "Oblivion.exe", 0x6D3A18;
     bool isWaiting      : "Oblivion.exe", 0x6D3A00;
 }
@@ -134,6 +134,5 @@ exit
 
 isLoading
 {
-    return (current.isLoadingScreen == 3 || current.isWaiting || current.quickLoad);
+    return (current.isLoadingScreen >= 3 || current.isWaiting || current.quickLoad);
 }
-
