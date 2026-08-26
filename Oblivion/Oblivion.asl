@@ -31,7 +31,7 @@ state("Oblivion", "1.0.228-GER")
 state("Oblivion", "1.1.425")
 {
     // See: https://en.uesp.net/wiki/Oblivion:Patch#Version_1.1.425_.28Beta.29
-    int isLoadingScreen : "Oblivion.exe", 0x006EABB0, 0x188, 0x2C, 0x4;
+    int isLoadingScreen : "Oblivion.exe", 0x006FB7E8, 0x04, 0x114, 0x114, 0x114, 0x28, 0x14, 0x1C;
     bool quickLoad      : "Oblivion.exe", 0x6D3A18;
     bool isWaiting      : "Oblivion.exe", 0x6D3A00;
 }
@@ -40,21 +40,21 @@ state("Oblivion", "1.1.511")
 {
     // See: https://en.uesp.net/wiki/Oblivion:Patch#Version_1.1.511
     // This version uses the same pointers as 1.1.425 but I thought I should keep them as separate state descriptors
-    int isLoadingScreen : "Oblivion.exe", 0x006EABB0, 0x188, 0x2C, 0x4;
+    int isLoadingScreen : "Oblivion.exe", 0x006FB7E8, 0x1C, 0x14, 0x28, 0x114, 0x114, 0x114, 0x04;
     bool quickLoad      : "Oblivion.exe", 0x6D3A18;
     bool isWaiting      : "Oblivion.exe", 0x6D3A00;
 }
 
 state("Oblivion", "1.1.511-FR")
 {
-    int isLoadingScreen : "Oblivion.exe", 0x006EABB0, 0x188, 0x2C, 0x4;
+    byte isLoadingScreen : "Oblivion.exe", 0x006FB7E8, 0x1C, 0x14, 0x28, 0x114, 0x114, 0x114, 0x04;
     bool quickLoad      : "Oblivion.exe", 0x6D3A18;
     bool isWaiting      : "Oblivion.exe", 0x6D3A00;
 }
 
 state("Oblivion", "1.1.511-GER")
 {
-    int isLoadingScreen : "Oblivion.exe", 0x006EABB0, 0x188, 0x2C, 0x4;
+    byte isLoadingScreen : "Oblivion.exe", 0x006FB7E8, 0x1C, 0x14, 0x28, 0x114, 0x114, 0x114, 0x04;
     bool quickLoad      : "Oblivion.exe", 0x6D3A18;
     bool isWaiting      : "Oblivion.exe", 0x6D3A00;
 }
